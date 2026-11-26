@@ -256,11 +256,10 @@ export function CustomerDashboardClient({
                   <div className="text-xs text-[#57534E] sm:text-right tabular-nums">
                     <span>Rent: <strong>{formatINR(booking.total_rental_amount)}</strong></span> ·{" "}
                     <span>Deposit: <strong>{formatINR(booking.total_security_deposit)}</strong></span>
-                    {booking.security_deposit && (
-                      <span className="block text-[11px] text-[#2F5D46]">
-                        Deposit: {booking.security_deposit.status.replace(/_/g, " ")}
-                      </span>
-                    )}
+                    <span className="block text-[11px] font-medium text-[#2F5D46]">
+                      Wapas Refund Hoga: <strong>{formatINR(booking.security_deposit?.refund_amount || booking.total_security_deposit)}</strong>
+                      {booking.security_deposit ? ` (${booking.security_deposit.status.replace(/_/g, " ")})` : ""}
+                    </span>
                   </div>
                   <div className="flex gap-2">
                     {booking.status === "AWAITING_PAYMENT" && (

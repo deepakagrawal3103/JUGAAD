@@ -56,6 +56,8 @@ export function CartClient() {
   const [addressLine, setAddressLine] = useState("");
   const [city, setCity] = useState("");
   const [pincode, setPincode] = useState("");
+  const [collegeName, setCollegeName] = useState("");
+  const [enrollmentNumber, setEnrollmentNumber] = useState("");
   const [notes, setNotes] = useState("");
 
   const loadCart = async () => {
@@ -100,16 +102,15 @@ export function CartClient() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          delivery_address:
-            fullName || addressLine
-              ? {
-                  full_name: fullName || "Customer",
-                  phone: phone || "0000000000",
-                  address_line: addressLine || "Self Pickup",
-                  city: city || items[0]?.product.city || "India",
-                  pincode: pincode || "000000",
-                }
-              : null,
+          delivery_address: {
+            full_name: fullName.trim(),
+            phone: phone.trim(),
+            address_line: addressLine.trim(),
+            city: city.trim() || items[0]?.product.city || "India",
+            pincode: pincode.trim() || "000000",
+            college_name: collegeName.trim(),
+            enrollment_number: enrollmentNumber.trim(),
+          },
           customer_notes: notes || null,
         }),
       });
@@ -195,21 +196,26 @@ export function CartClient() {
 
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-6 space-y-4">
           <h2 className="font-editorial text-2xl font-semibold">
-            {requiresDeliveryAddress ? "Delivery & Contact Details" : "Renter Contact Details"}
+            {requiresDeliveryAddress ? "Delivery, College & Contact Details *" : "Renter, College & Contact Details *"}
           </h2>
+          <p className="text-xs text-[#57534E]">
+            Order confirm karne ke liye aapka naam, WhatsApp number, address, college aur enrollment number zaroori hai.
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input required={requiresDeliveryAddress} value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Poora Naam" />
-            <Input required={requiresDeliveryAddress} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile Number (+91)" />
+            <Input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Poora Naam *" />
+            <Input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="WhatsApp Number (+91...) *" />
           </div>
-          {requiresDeliveryAddress && (
-            <div className="space-y-3">
-              <Input required value={addressLine} onChange={(e) => setAddressLine(e.target.value)} placeholder="Ghar ka Pata / Flat / Landmark" />
-              <div className="grid grid-cols-2 gap-4">
-                <Input required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Sheher" />
-                <Input required value={pincode} onChange={(e) => setPincode(e.target.value)} placeholder="PIN Code" />
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input required value={collegeName} onChange={(e) => setCollegeName(e.target.value)} placeholder="College / University ka Naam *" />
+            <Input required value={enrollmentNumber} onChange={(e) => setEnrollmentNumber(e.target.value)} placeholder="Enrollment / Roll Number *" />
+          </div>
+          <div className="space-y-3">
+            <Input required value={addressLine} onChange={(e) => setAddressLine(e.target.value)} placeholder="Ghar / Hostel ka Pata / Landmark *" />
+            <div className="grid grid-cols-2 gap-4">
+              <Input required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Sheher *" />
+              <Input required value={pincode} onChange={(e) => setPincode(e.target.value)} placeholder="PIN Code *" />
             </div>
-          )}
+          </div>
           <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Size ya pickup timing ke baare mein note (optional)..." />
         </div>
       </div>
@@ -237,6 +243,10 @@ export function CartClient() {
             <div className="flex justify-between font-bold text-base border-t border-[#E4DFD7] pt-3">
               <span>Abhi Total Pay Karna Hai</span>
               <span>{formatINR(summary.totalPayable)}</span>
+            </div>
+            <div className="rounded-xl bg-[#EDF5F0] border border-[#C4DACB] p-3 flex justify-between items-center text-xs text-[#2F5D46]">
+              <span>Return Par Wapas Refund Hoga</span>
+              <strong className="text-sm">{formatINR(summary.totalSecurityDeposit)}</strong>
             </div>
           </div>
         )}

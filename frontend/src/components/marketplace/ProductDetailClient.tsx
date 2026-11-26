@@ -491,18 +491,32 @@ export function ProductDetailClient({
                 </span>
               </button>
             )}
+            {product.fulfillment_options?.delivery_locations && product.fulfillment_options.delivery_locations.length > 0 && (
+              <div className="rounded-xl border border-[#E4DFD7] bg-[#FAF8F5] p-3 space-y-1.5">
+                <p className="text-[11px] font-semibold text-[#161616] flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-[#EB5E4C]" /> Available Delivery Locations (College / Area / City):
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {product.fulfillment_options.delivery_locations.map((loc) => (
+                    <span key={loc} className="rounded-full bg-white border border-[#E4DFD7] px-2.5 py-0.5 text-[11px] text-[#57534E]">
+                      {loc}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {checking ? (
             <p className="text-xs text-[#8C857B]">Checking live availability...</p>
           ) : availability?.available && availability.pricing ? (
-            <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] p-3.5 text-xs space-y-1 tabular-nums">
+            <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] p-3.5 text-xs space-y-1.5 tabular-nums">
               <div className="flex justify-between font-semibold text-[#2F5D46]">
-                <span>Available ({availability.pricing.rentalDays} days)</span>
+                <span>Available ({availability.pricing.rentalDays} din)</span>
                 <span>Rent: {formatINR(availability.pricing.rentalAmount)}</span>
               </div>
               <div className="flex justify-between text-[#161616]">
-                <span>Refundable Security Deposit</span>
+                <span>Security Deposit (100% Refundable)</span>
                 <span>{formatINR(availability.pricing.securityDeposit)}</span>
               </div>
               {availability.pricing.deliveryFee > 0 && (
@@ -511,6 +525,14 @@ export function ProductDetailClient({
                   <span>{formatINR(availability.pricing.deliveryFee)}</span>
                 </div>
               )}
+              <div className="flex justify-between font-bold text-[#161616] border-t border-[#C4DACB] pt-1.5">
+                <span>Abhi Total Pay Karna Hai</span>
+                <span>{formatINR(availability.pricing.customerPayable)}</span>
+              </div>
+              <div className="flex justify-between font-semibold text-[#2F5D46]">
+                <span>Return Par Wapas Refund Hoga</span>
+                <span>{formatINR(availability.pricing.securityDeposit)}</span>
+              </div>
             </div>
           ) : (
             <div className="rounded-xl border border-[#E6C5C5] bg-[#FDF1F1] p-3 text-xs text-[#9E2A2B] flex items-center gap-2">

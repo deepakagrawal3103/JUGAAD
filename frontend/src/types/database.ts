@@ -84,6 +84,7 @@ export interface ProductWithRelations {
     seller_delivery: boolean;
     platform_delivery: boolean;
     delivery_fee: number;
+    delivery_locations?: string[];
   };
   city: string;
   locality: string | null;

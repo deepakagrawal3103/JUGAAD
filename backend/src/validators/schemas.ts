@@ -66,6 +66,7 @@ export const listingPayloadSchema = z.object({
     seller_delivery: z.boolean(),
     platform_delivery: z.boolean().default(false),
     delivery_fee: z.number().min(0).max(50000).default(0),
+    delivery_locations: z.array(z.string().trim().max(100)).optional().default([]),
   }),
   city: z.string().trim().min(2, "City is required.").max(80),
   locality: z.string().trim().max(120).optional().nullable(),
@@ -101,6 +102,8 @@ export const checkoutSchema = z.object({
       address_line: z.string().trim().min(5).max(300),
       city: z.string().trim().min(2).max(80),
       pincode: z.string().trim().min(4).max(12),
+      college_name: z.string().trim().min(2).max(150).optional().nullable(),
+      enrollment_number: z.string().trim().min(2).max(80).optional().nullable(),
     })
     .optional()
     .nullable(),

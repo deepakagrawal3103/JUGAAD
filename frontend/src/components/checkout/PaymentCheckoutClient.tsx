@@ -327,8 +327,12 @@ export function PaymentCheckoutClient({
               <span>{formatINR(booking.total_security_deposit)}</span>
             </div>
             <div className="flex justify-between font-bold text-base border-t border-[#E4DFD7] pt-2.5">
-              <span>Total Payable Now</span>
+              <span>Abhi Total Pay Karna Hai</span>
               <span>{formatINR(booking.total_payable)}</span>
+            </div>
+            <div className="rounded-xl bg-[#EDF5F0] border border-[#C4DACB] p-2.5 flex justify-between items-center text-xs text-[#2F5D46]">
+              <span>Return Par Wapas Refund Hoga</span>
+              <strong className="text-sm">{formatINR(booking.total_security_deposit)}</strong>
             </div>
           </div>
 

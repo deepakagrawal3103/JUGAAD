@@ -68,7 +68,7 @@ export function ListingWizard({
     quantity: number;
     city: string;
     locality: string | null;
-    fulfillment_options: { pickup: boolean; seller_delivery: boolean; platform_delivery: boolean; delivery_fee: number };
+    fulfillment_options: { pickup: boolean; seller_delivery: boolean; platform_delivery: boolean; delivery_fee: number; delivery_locations?: string[] };
     images?: UploadedImage[];
   };
 }) {
@@ -121,6 +121,10 @@ export function ListingWizard({
   const [deliveryFee, setDeliveryFee] = useState(String(initialListing?.fulfillment_options?.delivery_fee ?? 0));
   const [city, setCity] = useState(initialListing?.city || "");
   const [locality, setLocality] = useState(initialListing?.locality || "");
+  const [deliveryLocations, setDeliveryLocations] = useState<string[]>(
+    initialListing?.fulfillment_options?.delivery_locations ?? []
+  );
+  const [newLocationInput, setNewLocationInput] = useState("");
 
   const retailNum = Number(originalPrice || 0);
   const suggestedDaily = retailNum > 0 ? Math.max(250, Math.round((retailNum * 0.05) / 50) * 50) : 900;
@@ -203,6 +207,7 @@ export function ListingWizard({
           seller_delivery: sellerDelivery,
           platform_delivery: false,
           delivery_fee: sellerDelivery ? Number(deliveryFee || 0) : 0,
+          delivery_locations: deliveryLocations,
         },
         city,
         locality: locality || null,
@@ -496,6 +501,48 @@ export function ListingWizard({
             {sellerDelivery && (
               <Input type="number" min={0} value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} placeholder="Delivery Charge (₹)" />
             )}
+
+            <div className="rounded-xl border border-[#E4DFD7] bg-[#FAF8F5] p-4 space-y-3">
+              <div>
+                <p className="text-xs font-semibold text-[#161616]">Available Delivery Locations (College / Area / City)</p>
+                <p className="text-[11px] text-[#57534E]">Jahan-jahan aap delivery ya handover kar sakte hain, woh college, area ya sheher add karo.</p>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={newLocationInput}
+                  onChange={(e) => setNewLocationInput(e.target.value)}
+                  placeholder="Jaise: MIT-WPU Campus, Kothrud, Pune..."
+                />
+                <Button
+                  type="button"
+                  variant="accent"
+                  onClick={() => {
+                    const val = newLocationInput.trim();
+                    if (!val || deliveryLocations.includes(val)) return;
+                    setDeliveryLocations((prev) => [...prev, val]);
+                    setNewLocationInput("");
+                  }}
+                >
+                  <Plus className="h-4 w-4" /> Add
+                </Button>
+              </div>
+              {deliveryLocations.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {deliveryLocations.map((loc) => (
+                    <span key={loc} className="inline-flex items-center gap-1.5 rounded-full border border-[#E4DFD7] bg-white px-3 py-1 text-xs font-medium">
+                      {loc}
+                      <button
+                        type="button"
+                        onClick={() => setDeliveryLocations((prev) => prev.filter((l) => l !== loc))}
+                        className="text-[#9E2A2B]"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
