@@ -33,7 +33,7 @@ export default async function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#161616]">
+      <body className="min-h-screen flex flex-col bg-[#F1F3F6] text-[#212121]">
         <SiteHeader
           brandName={shell.settings.brand_name}
           categories={shell.categories}

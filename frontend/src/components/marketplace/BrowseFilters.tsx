@@ -26,10 +26,10 @@ export function QuickFilterStrip() {
       <button
         type="button"
         onClick={() => router.push("/browse")}
-        className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-medium border transition-colors ${
+        className={`shrink-0 rounded-sm px-3.5 py-1.5 text-xs font-semibold border transition-colors ${
           !activeOccasion && !activeMax
-            ? "bg-[#FDECE9] border-[#F7C9C3] text-[#D94E3D]"
-            : "bg-white border-[#E4DFD7] text-[#57534E]"
+            ? "bg-[#2874F0] border-[#2874F0] text-white"
+            : "bg-white border-[#E0E0E0] text-[#212121]"
         }`}
       >
         All
@@ -39,10 +39,10 @@ export function QuickFilterStrip() {
           key={occ}
           type="button"
           onClick={() => pushQuick("occasion", occ)}
-          className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-medium border transition-colors ${
+          className={`shrink-0 rounded-sm px-3.5 py-1.5 text-xs font-semibold border transition-colors ${
             activeOccasion === occ
-              ? "bg-[#FDECE9] border-[#F7C9C3] text-[#D94E3D]"
-              : "bg-white border-[#E4DFD7] text-[#57534E]"
+              ? "bg-[#2874F0] border-[#2874F0] text-white"
+              : "bg-white border-[#E0E0E0] text-[#212121]"
           }`}
         >
           {occ}
@@ -51,10 +51,10 @@ export function QuickFilterStrip() {
       <button
         type="button"
         onClick={() => pushQuick("max_price", "800")}
-        className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-medium border transition-colors ${
+        className={`shrink-0 rounded-sm px-3.5 py-1.5 text-xs font-semibold border transition-colors ${
           activeMax === "800"
-            ? "bg-[#FDECE9] border-[#F7C9C3] text-[#D94E3D]"
-            : "bg-white border-[#E4DFD7] text-[#57534E]"
+            ? "bg-[#2874F0] border-[#2874F0] text-white"
+            : "bg-white border-[#E0E0E0] text-[#212121]"
         }`}
       >
         Under ₹800/day
@@ -107,15 +107,15 @@ export function BrowseFilters({ categories }: { categories: CategoryRecord[] }) 
   };
 
   return (
-    <form onSubmit={applyFilters} className="rounded-2xl border border-[#E4DFD7] bg-white p-5 space-y-4">
-      <div className="flex items-center justify-between border-b border-[#E4DFD7] pb-3">
-        <h2 className="font-editorial text-xl font-semibold text-[#161616]">Refine Search</h2>
+    <form onSubmit={applyFilters} className="rounded-sm border border-[#E0E0E0] bg-white p-4 space-y-4 shadow-xs">
+      <div className="flex items-center justify-between border-b border-[#F0F0F0] pb-3">
+        <h2 className="text-base font-bold uppercase tracking-wide text-[#212121]">Filters</h2>
         <button
           type="button"
           onClick={() => router.push("/browse")}
-          className="text-xs text-[#EB5E4C] font-medium hover:underline"
+          className="text-xs text-[#2874F0] font-bold uppercase hover:underline"
         >
-          Reset
+          Clear All
         </button>
       </div>
 

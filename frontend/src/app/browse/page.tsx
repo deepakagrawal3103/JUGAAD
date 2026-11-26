@@ -140,52 +140,54 @@ export default async function BrowsePage({
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
-    <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      {/* Stitch Quick Filter Pills */}
-      <Suspense fallback={null}>
-        <QuickFilterStrip />
-      </Suspense>
-
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#57534E]">
-        <span>
-          <strong className="text-[#161616]">{total}</strong> curated pieces {location ? `in ${location}` : "available"}
-        </span>
-        <span className="inline-flex items-center gap-1 text-[#2F5D46] font-medium">
-          <ShieldCheck className="h-3.5 w-3.5" /> Dry-cleaned &amp; verified
-        </span>
+    <div className="max-w-[1360px] mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4">
+      {/* Flipkart Quick Filter Pills */}
+      <div className="bg-white rounded-sm border border-[#E0E0E0] p-3 shadow-xs">
+        <Suspense fallback={null}>
+          <QuickFilterStrip />
+        </Suspense>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         <aside className="lg:col-span-3">
-          <Suspense fallback={<div className="h-96 rounded-2xl bg-[#ECE7E0] animate-pulse" />}>
+          <Suspense fallback={<div className="h-96 rounded-sm bg-[#E0E0E0] animate-pulse" />}>
             <BrowseFilters categories={shell.categories} />
           </Suspense>
         </aside>
 
-        <div className="lg:col-span-9 space-y-8">
+        <div className="lg:col-span-9 bg-white rounded-sm border border-[#E0E0E0] shadow-xs p-4 sm:p-5 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#535766] border-b border-[#F0F0F0] pb-3">
+            <span>
+              Showing <strong className="text-[#212121]">{total}</strong> curated outfits
+            </span>
+            <span className="inline-flex items-center gap-1 text-[#388E3C] font-semibold">
+              <ShieldCheck className="h-3.5 w-3.5" /> RentKro Assured · Dry-cleaned &amp; verified
+            </span>
+          </div>
+
           {products.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-5">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} initialWishlisted={wishlistIds.has(product.id)} />
                 ))}
               </div>
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-3 pt-4 border-t border-[#E4DFD7]">
+                <div className="flex items-center justify-center gap-3 pt-4 border-t border-[#F0F0F0]">
                   {page > 1 && (
-                    <Link href={`/browse?page=${page - 1}`} className="rounded-xl border border-[#E4DFD7] bg-white px-4 py-2 text-xs">Previous</Link>
+                    <Link href={`/browse?page=${page - 1}`} className="rounded-sm border border-[#E0E0E0] bg-white px-4 py-2 text-xs font-semibold text-[#2874F0]">Previous</Link>
                   )}
-                  <span className="text-xs text-[#57534E]">Page {page} of {totalPages}</span>
+                  <span className="text-xs text-[#535766]">Page {page} of {totalPages}</span>
                   {page < totalPages && (
-                    <Link href={`/browse?page=${page + 1}`} className="rounded-xl border border-[#E4DFD7] bg-white px-4 py-2 text-xs">Next</Link>
+                    <Link href={`/browse?page=${page + 1}`} className="rounded-sm border border-[#E0E0E0] bg-white px-4 py-2 text-xs font-semibold text-[#2874F0]">Next</Link>
                   )}
                 </div>
               )}
             </>
           ) : (
-            <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white p-14 text-center space-y-4">
-              <p className="font-editorial text-2xl text-[#161616]">No matching rentals found</p>
-              <p className="text-sm text-[#57534E] max-w-md mx-auto">
+            <div className="rounded-sm border border-dashed border-[#D6D8DC] bg-[#FAFAFA] p-12 text-center space-y-3">
+              <p className="text-lg font-semibold text-[#212121]">No matching rentals found</p>
+              <p className="text-xs sm:text-sm text-[#535766] max-w-md mx-auto">
                 Try clearing some filters or adjusting your rental dates. Approved listings appear here as soon as our curation team verifies them.
               </p>
               <div className="flex justify-center gap-3 pt-2">
