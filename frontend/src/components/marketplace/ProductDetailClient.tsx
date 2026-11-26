@@ -462,7 +462,7 @@ export function ProductDetailClient({
                 <div className="flex items-center gap-2.5">
                   <Store className="h-4 w-4 text-[#EB5E4C]" />
                   <div>
-                    <p className="text-xs font-semibold text-[#161616]">Self-pickup from {product.city}</p>
+                    <p className="text-xs font-semibold text-[#161616]">Self-pickup</p>
                     <p className="text-[11px] text-[#8C857B]">Exact address shared after booking confirmation</p>
                   </div>
                 </div>
@@ -483,27 +483,13 @@ export function ProductDetailClient({
                   <Truck className="h-4 w-4 text-[#EB5E4C]" />
                   <div>
                     <p className="text-xs font-semibold text-[#161616]">Seller Delivery</p>
-                    <p className="text-[11px] text-[#8C857B]">Doorstep handover in {product.city}</p>
+                    <p className="text-[11px] text-[#8C857B]">Doorstep handover</p>
                   </div>
                 </div>
                 <span className="text-xs font-semibold tabular-nums">
                   +{formatINR(product.fulfillment_options.delivery_fee || 0)}
                 </span>
               </button>
-            )}
-            {product.fulfillment_options?.delivery_locations && product.fulfillment_options.delivery_locations.length > 0 && (
-              <div className="rounded-xl border border-[#E4DFD7] bg-[#FAF8F5] p-3 space-y-1.5">
-                <p className="text-[11px] font-semibold text-[#161616] flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 text-[#EB5E4C]" /> Available Delivery Locations (College / Area / City):
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {product.fulfillment_options.delivery_locations.map((loc) => (
-                    <span key={loc} className="rounded-full bg-white border border-[#E4DFD7] px-2.5 py-0.5 text-[11px] text-[#57534E]">
-                      {loc}
-                    </span>
-                  ))}
-                </div>
-              </div>
             )}
           </div>
 

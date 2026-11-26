@@ -12,7 +12,6 @@ import {
   X,
   Bell,
   ChevronDown,
-  MapPin,
 } from "lucide-react";
 import type { CategoryRecord } from "@/types/database";
 import type { AuthenticatedContext } from "@/lib/auth/session";
@@ -31,14 +30,12 @@ interface SiteHeaderProps {
 export function SiteHeader({ brandName, categories, user, counts }: SiteHeaderProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (searchQuery.trim()) params.set("q", searchQuery.trim());
-    if (cityFilter) params.set("location", cityFilter);
     const qs = params.toString();
     router.push(qs ? `/browse?${qs}` : "/browse");
     setMobileMenuOpen(false);
@@ -69,27 +66,6 @@ export function SiteHeader({ brandName, categories, user, counts }: SiteHeaderPr
             >
               {brandName}
             </Link>
-
-            <div className="hidden sm:flex items-center gap-1 rounded-full border border-[#E4DFD7] bg-white px-3 py-1 text-xs text-[#161616]">
-              <MapPin className="h-3.5 w-3.5 text-[#EB5E4C]" />
-              <select
-                aria-label="Filter by city"
-                value={cityFilter}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setCityFilter(val);
-                  router.push(val ? `/browse?location=${encodeURIComponent(val)}` : "/browse");
-                }}
-                className="bg-transparent text-xs font-medium focus:outline-none cursor-pointer"
-              >
-                <option value="">All Cities</option>
-                <option value="Pune">Pune</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Delhi">Delhi</option>
-                <option value="Bengaluru">Bengaluru</option>
-                <option value="Hyderabad">Hyderabad</option>
-              </select>
-            </div>
           </div>
 
           {/* Desktop Nav */}

@@ -81,8 +81,7 @@ export function ProductCard({
         </h3>
 
         <p className="text-xs text-[#8C857B] truncate">
-          {product.locality ? `${product.locality}, ` : ""}
-          {product.city} • Size {product.size}
+          {product.brand} • Size {product.size}
         </p>
 
         <div className="pt-1">

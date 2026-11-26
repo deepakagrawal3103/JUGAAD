@@ -161,10 +161,7 @@ export function BrowseFilters({ categories }: { categories: CategoryRecord[] }) 
           ))}
         </Select>
 
-        <div className="grid grid-cols-2 gap-2">
-          <Input value={color} onChange={(e) => setColor(e.target.value)} placeholder="Color" />
-          <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City" />
-        </div>
+        <Input value={color} onChange={(e) => setColor(e.target.value)} placeholder="Color" />
 
         <Select value={condition} onChange={(e) => setCondition(e.target.value)}>
           <option value="">Any Condition</option>
