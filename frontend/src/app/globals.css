@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --font-editorial: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --bg-canvas: #faf8f5;
+  --bg-surface: #ffffff;
+  --bg-cream: #f3efea;
+  --bg-muted: #ece7e0;
+  --ink-primary: #161616;
+  --ink-secondary: #57534e;
+  --ink-muted: #8c857b;
+  --border-hairline: #e4dfd7;
+  --accent-coral: #eb5e4c;
+  --accent-coral-soft: #fdece9;
+  --accent-sage: #2f5d46;
+  --accent-amber: #9a6b1e;
+  --accent-crimson: #9e2a2b;
+}
+
+@layer base {
+  html {
+    background-color: var(--bg-canvas);
+    color: var(--ink-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-canvas);
+    color: var(--ink-primary);
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: var(--font-editorial);
+  }
+
+  .font-mono-ref {
+    font-family: var(--font-mono);
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
