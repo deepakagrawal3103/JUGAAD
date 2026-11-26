@@ -27,7 +27,7 @@ adminRouter.get("/dashboard", async (_req, res) => {
     { data: settings },
   ] = await Promise.all([
     supabase.from("users").select("*").order("created_at", { ascending: false }),
-    supabase.from("seller_profiles").select("id"),
+    supabase.from("seller_profiles").select("*").order("created_at", { ascending: false }),
     supabase
       .from("products")
       .select(`
@@ -108,6 +108,7 @@ adminRouter.get("/dashboard", async (_req, res) => {
     payouts: payouts ?? [],
     disputes: allDisputes,
     users: users ?? [],
+    sellers: sellers ?? [],
     categories: categories ?? [],
     policies: policies ?? [],
     settings,
@@ -299,20 +300,27 @@ adminRouter.patch("/policies", async (req: AuthenticatedRequest, res) => {
 });
 
 adminRouter.patch("/users", async (req: AuthenticatedRequest, res) => {
-  const schema = z.object({ user_id: z.string().uuid(), status: z.enum(["ACTIVE", "SUSPENDED"]) });
+  const schema = z.object({
+    user_id: z.string().uuid(),
+    status: z.enum(["ACTIVE", "SUSPENDED"]).optional(),
+    role: z.enum(["CUSTOMER", "SELLER", "ADMIN"]).optional(),
+  });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid user update." });
     return;
   }
-  if (parsed.data.user_id === req.auth!.userId) {
+  if (parsed.data.user_id === req.auth!.userId && parsed.data.status === "SUSPENDED") {
     res.status(400).json({ error: "You cannot suspend your own admin account." });
     return;
   }
+  const updateFields: Record<string, string> = {};
+  if (parsed.data.status) updateFields.status = parsed.data.status;
+  if (parsed.data.role) updateFields.role = parsed.data.role;
   const supabase = getServiceSupabase();
   const { data, error } = await supabase
     .from("users")
-    .update({ status: parsed.data.status })
+    .update(updateFields)
     .eq("id", parsed.data.user_id)
     .select()
     .single();
@@ -321,6 +329,76 @@ adminRouter.patch("/users", async (req: AuthenticatedRequest, res) => {
     return;
   }
   res.json({ user: data });
+});
+
+adminRouter.patch("/sellers", async (req, res) => {
+  const schema = z.object({
+    seller_id: z.string().uuid(),
+    verification_status: z.enum(["PENDING", "VERIFIED", "SUSPENDED"]),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid seller update." });
+    return;
+  }
+  const supabase = getServiceSupabase();
+  const { data, error } = await supabase
+    .from("seller_profiles")
+    .update({ verification_status: parsed.data.verification_status })
+    .eq("id", parsed.data.seller_id)
+    .select()
+    .single();
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+  res.json({ seller: data });
+});
+
+adminRouter.patch("/bookings/:id/status", async (req: AuthenticatedRequest, res) => {
+  const schema = z.object({
+    status: z.enum([
+      "AWAITING_PAYMENT",
+      "PAYMENT_VERIFICATION_PENDING",
+      "CONFIRMED",
+      "READY_FOR_PICKUP",
+      "DISPATCHED",
+      "RENTAL_ACTIVE",
+      "RETURN_DUE",
+      "RETURN_INITIATED",
+      "RETURNED",
+      "INSPECTION_PENDING",
+      "DEPOSIT_REFUND_PENDING",
+      "COMPLETED",
+      "CANCELLED",
+      "DISPUTED",
+    ]),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid booking status." });
+    return;
+  }
+  const supabase = getServiceSupabase();
+  const { data, error } = await supabase
+    .from("bookings")
+    .update({ status: parsed.data.status })
+    .eq("id", String(req.params.id))
+    .select()
+    .single();
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+  await supabase.from("booking_status_logs").insert({
+    booking_id: String(req.params.id),
+    actor_id: req.auth!.userId,
+    actor_role: "ADMIN",
+    previous_status: "ADMIN_OVERRIDE",
+    new_status: parsed.data.status,
+    note: "Manual status override by Admin.",
+  });
+  res.json({ booking: data });
 });
 
 adminRouter.patch("/payouts", async (req: AuthenticatedRequest, res) => {

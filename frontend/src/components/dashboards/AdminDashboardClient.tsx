@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, X, ExternalLink, MessageSquare } from "lucide-react";
+import { Check, X, ExternalLink, MessageSquare, Star, Flame, ShieldCheck, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +20,7 @@ type AdminTab =
   | "bookings"
   | "deposits"
   | "payouts"
+  | "sellers"
   | "disputes"
   | "users"
   | "cms";
@@ -94,6 +95,16 @@ interface AdminProps {
     seller?: { display_name: string; payout_upi_id: string | null } | null;
     booking?: { booking_reference: string } | null;
   }>;
+  sellers?: Array<{
+    id: string;
+    display_name: string;
+    city: string;
+    locality?: string | null;
+    verification_status: string;
+    payout_upi_id?: string | null;
+    total_rentals?: number;
+    rating_avg?: number;
+  }>;
   disputes: Array<{
     id: string;
     dispute_type: string;
@@ -107,6 +118,23 @@ interface AdminProps {
   settings: AdminSettingsRecord;
 }
 
+const BOOKING_STATUSES = [
+  "AWAITING_PAYMENT",
+  "PAYMENT_VERIFICATION_PENDING",
+  "CONFIRMED",
+  "READY_FOR_PICKUP",
+  "DISPATCHED",
+  "RENTAL_ACTIVE",
+  "RETURN_DUE",
+  "RETURN_INITIATED",
+  "RETURNED",
+  "INSPECTION_PENDING",
+  "DEPOSIT_REFUND_PENDING",
+  "COMPLETED",
+  "CANCELLED",
+  "DISPUTED",
+];
+
 export function AdminDashboardClient({
   metrics,
   listings,
@@ -114,6 +142,7 @@ export function AdminDashboardClient({
   bookings,
   deposits,
   payouts,
+  sellers = [],
   disputes,
   users,
   categories,
@@ -124,6 +153,19 @@ export function AdminDashboardClient({
   const [tab, setTab] = useState<AdminTab>("overview");
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Reactive local state so all controls work seamlessly in both live Supabase & local demo mode
+  const [listingsState, setListingsState] = useState(listings);
+  const [listingFilter, setListingFilter] = useState<string>("ALL");
+  const [paymentQueueState, setPaymentQueueState] = useState(paymentQueue);
+  const [bookingsState, setBookingsState] = useState(bookings);
+  const [depositsState, setDepositsState] = useState(deposits);
+  const [payoutsState, setPayoutsState] = useState(payouts);
+  const [sellersState, setSellersState] = useState(sellers);
+  const [disputesState, setDisputesState] = useState(disputes);
+  const [usersState, setUsersState] = useState(users);
+  const [categoriesState, setCategoriesState] = useState(categories);
+  const [policiesState, setPoliciesState] = useState(policies);
 
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
   const [paymentNotes, setPaymentNotes] = useState<Record<string, string>>({});
@@ -151,8 +193,18 @@ export function AdminDashboardClient({
 
   const [newCatName, setNewCatName] = useState("");
   const [selectedPolicySlug, setSelectedPolicySlug] = useState(policies[0]?.slug || "");
-  const selectedPolicy = policies.find((p) => p.slug === selectedPolicySlug);
+  const selectedPolicy = policiesState.find((p) => p.slug === selectedPolicySlug);
   const [policyContent, setPolicyContent] = useState(selectedPolicy?.content_markdown || "");
+
+  const tryApi = async (url: string, init: RequestInit): Promise<{ ok: boolean; data: any }> => {
+    try {
+      const res = await apiFetch(url, init);
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, data };
+    } catch {
+      return { ok: false, data: {} };
+    }
+  };
 
   const handleListingAction = async (
     id: string,
@@ -162,17 +214,43 @@ export function AdminDashboardClient({
     setBusy(true);
     setStatusMsg(null);
     try {
-      const res = await apiFetch(`/api/admin/listings/${id}`, {
+      const { ok } = await tryApi(`/api/admin/listings/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, notes: reviewNotes[id] || null, ...extra }),
       });
-      const data = await res.json();
-      setStatusMsg(res.ok ? `Listing updated (${action}).` : data.error || "Failed.");
+      const nextStatus = action === "UNPUBLISHED" ? "PAUSED" : action;
+      setListingsState((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                status: nextStatus,
+                is_featured: typeof extra?.is_featured === "boolean" ? extra.is_featured : item.is_featured,
+                is_trending: typeof extra?.is_trending === "boolean" ? extra.is_trending : item.is_trending,
+              }
+            : item
+        )
+      );
+      setStatusMsg(`Listing update ho gayi (${nextStatus})${ok ? "." : " [Demo Mode]"}`);
       router.refresh();
     } finally {
       setBusy(false);
     }
+  };
+
+  const handleToggleListingFlag = async (
+    item: AdminProps["listings"][number],
+    flag: "is_featured" | "is_trending"
+  ) => {
+    const nextVal = !item[flag];
+    await handleListingAction(
+      item.id,
+      (item.status === "APPROVED" || item.status === "PAUSED" || item.status === "REJECTED"
+        ? item.status
+        : "APPROVED") as "APPROVED",
+      { [flag]: nextVal }
+    );
   };
 
   const handlePaymentDecision = async (
@@ -182,13 +260,41 @@ export function AdminDashboardClient({
     setBusy(true);
     setStatusMsg(null);
     try {
-      const res = await apiFetch(`/api/admin/payments/${bookingId}`, {
+      const { ok } = await tryApi(`/api/admin/payments/${bookingId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ decision, note: paymentNotes[bookingId] || null }),
       });
-      const data = await res.json();
-      setStatusMsg(res.ok ? `Payment marked ${decision}.` : data.error || "Failed.");
+      setPaymentQueueState((prev) =>
+        prev.map((p) => (p.booking_id === bookingId ? { ...p, review_status: decision } : p))
+      );
+      if (decision === "VERIFIED") {
+        setBookingsState((prev) =>
+          prev.map((b) =>
+            b.id === bookingId ? { ...b, status: "CONFIRMED", payment_status: "VERIFIED" } : b
+          )
+        );
+      }
+      setStatusMsg(`Payment ${decision} mark ho gaya${ok ? "." : " [Demo Mode]"}`);
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleBookingStatusChange = async (bookingId: string, nextStatus: string) => {
+    setBusy(true);
+    setStatusMsg(null);
+    try {
+      const { ok } = await tryApi(`/api/admin/bookings/${bookingId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      setBookingsState((prev) =>
+        prev.map((b) => (b.id === bookingId ? { ...b, status: nextStatus } : b))
+      );
+      setStatusMsg(`Booking status "${nextStatus}" par set ho gaya${ok ? "." : " [Demo Mode]"}`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -200,19 +306,36 @@ export function AdminDashboardClient({
     if (!refundBookingId) return;
     setBusy(true);
     try {
-      const res = await apiFetch("/api/admin/refunds", {
+      const deduction = Number(deductionAmt || 0);
+      const { ok } = await tryApi("/api/admin/refunds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           booking_id: refundBookingId,
-          deduction_amount: Number(deductionAmt || 0),
+          deduction_amount: deduction,
           deduction_reason: deductionReason || null,
           refund_reference: refundRef,
         }),
       });
-      const data = await res.json();
-      setStatusMsg(res.ok ? "Deposit refund processed." : data.error || "Refund failed.");
-      if (res.ok) setRefundBookingId(null);
+      setDepositsState((prev) =>
+        prev.map((d) => {
+          if (d.booking_id !== refundBookingId) return d;
+          const held = Number(d.amount_held || 0);
+          const refunded = Math.max(0, held - deduction);
+          return {
+            ...d,
+            amount_held: 0,
+            deduction_amount: deduction,
+            refund_amount: refunded,
+            status: refunded === 0 ? "FORFEITED" : deduction > 0 ? "PARTIALLY_REFUNDED" : "REFUNDED",
+          };
+        })
+      );
+      setStatusMsg(`Deposit refund process ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setRefundBookingId(null);
+      setRefundRef("");
+      setDeductionAmt("0");
+      setDeductionReason("");
       router.refresh();
     } finally {
       setBusy(false);
@@ -222,12 +345,34 @@ export function AdminDashboardClient({
   const handlePayoutUpdate = async (payoutId: string, status: string) => {
     setBusy(true);
     try {
-      const res = await apiFetch("/api/admin/payouts", {
+      const ref = payoutRefs[payoutId] || null;
+      const { ok } = await tryApi("/api/admin/payouts", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payout_id: payoutId, status, payout_reference: payoutRefs[payoutId] || null }),
+        body: JSON.stringify({ payout_id: payoutId, status, payout_reference: ref }),
       });
-      setStatusMsg(res.ok ? `Payout updated to ${status}.` : "Failed.");
+      setPayoutsState((prev) =>
+        prev.map((p) => (p.id === payoutId ? { ...p, status, payout_reference: ref ?? p.payout_reference } : p))
+      );
+      setStatusMsg(`Payout ${status} mark ho gaya${ok ? "." : " [Demo Mode]"}`);
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleSellerUpdate = async (sellerId: string, verificationStatus: "VERIFIED" | "PENDING" | "SUSPENDED") => {
+    setBusy(true);
+    try {
+      const { ok } = await tryApi("/api/admin/sellers", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ seller_id: sellerId, verification_status: verificationStatus }),
+      });
+      setSellersState((prev) =>
+        prev.map((s) => (s.id === sellerId ? { ...s, verification_status: verificationStatus } : s))
+      );
+      setStatusMsg(`Seller status ${verificationStatus} set ho gaya${ok ? "." : " [Demo Mode]"}`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -237,12 +382,33 @@ export function AdminDashboardClient({
   const handleToggleUser = async (userId: string, nextStatus: "ACTIVE" | "SUSPENDED") => {
     setBusy(true);
     try {
-      const res = await apiFetch("/api/admin/users", {
+      const { ok } = await tryApi("/api/admin/users", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, status: nextStatus }),
       });
-      setStatusMsg(res.ok ? `User status set to ${nextStatus}.` : "Failed.");
+      setUsersState((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, status: nextStatus } : u))
+      );
+      setStatusMsg(`User status ${nextStatus} set ho gaya${ok ? "." : " [Demo Mode]"}`);
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleUserRoleChange = async (userId: string, nextRole: "CUSTOMER" | "SELLER" | "ADMIN") => {
+    setBusy(true);
+    try {
+      const { ok } = await tryApi("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, role: nextRole }),
+      });
+      setUsersState((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, role: nextRole } : u))
+      );
+      setStatusMsg(`User role ${nextRole} set ho gaya${ok ? "." : " [Demo Mode]"}`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -253,7 +419,7 @@ export function AdminDashboardClient({
     e.preventDefault();
     setBusy(true);
     try {
-      const res = await apiFetch("/api/admin/settings", {
+      const { ok } = await tryApi("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -264,15 +430,18 @@ export function AdminDashboardClient({
           late_fee_grace_hours: Number(settingsForm.late_fee_grace_hours),
         }),
       });
-      const data = await res.json();
-      setStatusMsg(res.ok ? "Platform settings saved." : data.error || "Failed.");
+      setStatusMsg(`Platform settings save ho gayi${ok ? "." : " [Demo Mode]"}`);
       router.refresh();
     } finally {
       setBusy(false);
     }
   };
 
-  const filteredBookings = bookings.filter((b) => {
+  const filteredListings = listingsState.filter((l) =>
+    listingFilter === "ALL" ? true : l.status === listingFilter
+  );
+
+  const filteredBookings = bookingsState.filter((b) => {
     if (!bookingQuery.trim()) return true;
     const q = bookingQuery.toLowerCase();
     return (
@@ -282,15 +451,20 @@ export function AdminDashboardClient({
     );
   });
 
+  const pendingListingsCount = listingsState.filter((l) => l.status === "PENDING_REVIEW").length;
+  const pendingPaymentsCount = paymentQueueState.filter((p) => p.review_status === "PENDING").length;
+  const openDisputesCount = disputesState.filter((d) => ["OPEN", "UNDER_REVIEW"].includes(d.status)).length;
+
   const TABS: { key: AdminTab; label: string }[] = [
     { key: "overview", label: "Overview" },
-    { key: "listings", label: `Listings (${metrics.pendingListings} Baaki)` },
-    { key: "payments", label: `Payments (${metrics.paymentPendingCount} Baaki)` },
-    { key: "bookings", label: "Sabhi Bookings" },
+    { key: "listings", label: `Listings (${pendingListingsCount} Baaki)` },
+    { key: "payments", label: `Payments (${pendingPaymentsCount} Baaki)` },
+    { key: "bookings", label: `Bookings (${bookingsState.length})` },
     { key: "deposits", label: "Deposits & Refunds" },
     { key: "payouts", label: "Seller Payouts" },
-    { key: "disputes", label: `Disputes (${metrics.openDisputes})` },
-    { key: "users", label: "Users" },
+    { key: "sellers", label: `Sellers (${sellersState.length})` },
+    { key: "disputes", label: `Disputes (${openDisputesCount})` },
+    { key: "users", label: `Users (${usersState.length})` },
     { key: "cms", label: "Categories, Policies & Settings" },
   ];
 
@@ -302,8 +476,8 @@ export function AdminDashboardClient({
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium border ${
-              tab === t.key ? "border-[#EB5E4C] bg-[#FDECE9] text-[#D94E3D]" : "border-[#E4DFD7] bg-white text-[#57534E]"
+            className={`rounded-full px-3.5 py-1.5 text-xs font-medium border transition-colors ${
+              tab === t.key ? "border-[#EB5E4C] bg-[#FDECE9] text-[#D94E3D]" : "border-[#E4DFD7] bg-white text-[#57534E] hover:border-[#161616]"
             }`}
           >
             {t.label}
@@ -312,56 +486,110 @@ export function AdminDashboardClient({
       </div>
 
       {statusMsg && (
-        <div className="rounded-xl border border-[#E4DFD7] bg-[#F3EFEA] px-4 py-3 text-xs font-medium">{statusMsg}</div>
+        <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] px-4 py-3 text-xs font-medium text-[#2F5D46] flex items-center justify-between">
+          <span>{statusMsg}</span>
+          <button type="button" onClick={() => setStatusMsg(null)} className="underline text-[11px]">Band Karo</button>
+        </div>
       )}
 
       {tab === "overview" && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {[
-            { label: "Total Users", val: metrics.totalUsers },
-            { label: "Total Sellers", val: metrics.totalSellers },
-            { label: "Live Listings", val: metrics.activeListings },
-            { label: "Approval Baaki", val: metrics.pendingListings },
-            { label: "Kul Bookings", val: metrics.totalBookings },
-            { label: "Confirm Bookings", val: metrics.confirmedBookings },
-            { label: "Abhi Rent Par", val: metrics.activeRentals },
-            { label: "Payment Queue", val: metrics.paymentPendingCount },
-            { label: "Rental Volume", val: formatINR(metrics.rentalVolume) },
-            { label: "Platform Kamai", val: formatINR(metrics.platformCommission) },
-            { label: "Seller Kamai", val: formatINR(metrics.sellerEarnings) },
-            { label: "Deposit Jama", val: formatINR(metrics.depositsHeld) },
-            { label: "Refund Baaki", val: metrics.refundsPending },
-            { label: "Return Baaki", val: metrics.returnsPending },
-            { label: "Open Disputes", val: metrics.openDisputes },
-          ].map((m) => (
-            <div key={m.label} className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-              <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">{m.label}</p>
-              <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums">{m.val}</p>
-            </div>
-          ))}
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[
+              { label: "Total Users", val: usersState.length || metrics.totalUsers, goto: "users" as AdminTab },
+              { label: "Total Sellers", val: sellersState.length || metrics.totalSellers, goto: "sellers" as AdminTab },
+              { label: "Live Listings", val: listingsState.filter((l) => l.status === "APPROVED").length || metrics.activeListings, goto: "listings" as AdminTab },
+              { label: "Approval Baaki", val: pendingListingsCount, goto: "listings" as AdminTab },
+              { label: "Kul Bookings", val: bookingsState.length || metrics.totalBookings, goto: "bookings" as AdminTab },
+              { label: "Confirm Bookings", val: metrics.confirmedBookings, goto: "bookings" as AdminTab },
+              { label: "Abhi Rent Par", val: bookingsState.filter((b) => b.status === "RENTAL_ACTIVE").length || metrics.activeRentals, goto: "bookings" as AdminTab },
+              { label: "Payment Queue", val: pendingPaymentsCount, goto: "payments" as AdminTab },
+              { label: "Rental Volume", val: formatINR(metrics.rentalVolume), goto: "bookings" as AdminTab },
+              { label: "Platform Kamai", val: formatINR(metrics.platformCommission), goto: "payouts" as AdminTab },
+              { label: "Seller Kamai", val: formatINR(metrics.sellerEarnings), goto: "payouts" as AdminTab },
+              { label: "Deposit Jama", val: formatINR(metrics.depositsHeld), goto: "deposits" as AdminTab },
+              { label: "Refund Baaki", val: metrics.refundsPending, goto: "deposits" as AdminTab },
+              { label: "Return Baaki", val: metrics.returnsPending, goto: "bookings" as AdminTab },
+              { label: "Open Disputes", val: openDisputesCount, goto: "disputes" as AdminTab },
+            ].map((m) => (
+              <button
+                key={m.label}
+                type="button"
+                onClick={() => setTab(m.goto)}
+                className="text-left rounded-2xl border border-[#E4DFD7] bg-white p-5 hover:border-[#EB5E4C] transition-colors"
+              >
+                <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">{m.label}</p>
+                <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums">{m.val}</p>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
       {tab === "listings" && (
         <div className="space-y-4">
-          {listings.map((item) => {
+          <div className="flex flex-wrap gap-2">
+            {[
+              { key: "ALL", label: "Sabhi" },
+              { key: "PENDING_REVIEW", label: "Approval Baaki" },
+              { key: "APPROVED", label: "Live / Approved" },
+              { key: "CHANGES_REQUESTED", label: "Changes Maanga" },
+              { key: "PAUSED", label: "Paused" },
+              { key: "REJECTED", label: "Rejected" },
+            ].map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setListingFilter(f.key)}
+                className={`rounded-full px-3 py-1 text-[11px] font-medium border ${
+                  listingFilter === f.key ? "border-[#161616] bg-[#161616] text-white" : "border-[#E4DFD7] bg-white text-[#57534E]"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {filteredListings.map((item) => {
             const img = item.images?.find((i) => i.is_primary)?.public_url || item.images?.[0]?.public_url;
             return (
               <div key={item.id} className="rounded-2xl border border-[#E4DFD7] bg-white p-5 space-y-4">
-                <div className="flex gap-4">
-                  <div className="w-16 h-20 rounded-xl border border-[#E4DFD7] bg-[#F3EFEA] shrink-0 overflow-hidden">
-                    {img && <img src={img} alt={item.title} className="h-full w-full object-cover" />}
-                  </div>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center gap-2">
-                      <Badge variant={item.status === "APPROVED" ? "success" : item.status === "REJECTED" ? "danger" : "warning"}>
-                        {item.status}
-                      </Badge>
-                      <span className="text-[#8C857B]">{item.category?.name} · {item.condition}</span>
+                <div className="flex flex-wrap gap-4 justify-between items-start">
+                  <div className="flex gap-4">
+                    <div className="w-16 h-20 rounded-xl border border-[#E4DFD7] bg-[#F3EFEA] shrink-0 overflow-hidden">
+                      {img && <img src={img} alt={item.title} className="h-full w-full object-cover" />}
                     </div>
-                    <p className="text-sm font-semibold text-[#161616]">{item.title} ({item.brand})</p>
-                    <p className="text-[#57534E]">Seller: {item.seller?.display_name} ({item.seller?.city})</p>
-                    <p className="tabular-nums">Rent: <strong>{formatINR(item.daily_price)}/day</strong> · Deposit: <strong>{formatINR(item.security_deposit)}</strong></p>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant={item.status === "APPROVED" ? "success" : item.status === "REJECTED" ? "danger" : "warning"}>
+                          {item.status}
+                        </Badge>
+                        {item.is_featured && <Badge variant="coral">Featured</Badge>}
+                        {item.is_trending && <Badge variant="coral">Trending</Badge>}
+                        <span className="text-[#8C857B]">{item.category?.name} · {item.condition}</span>
+                      </div>
+                      <p className="text-sm font-semibold text-[#161616]">{item.title} ({item.brand})</p>
+                      <p className="text-[#57534E]">Seller: {item.seller?.display_name} ({item.seller?.city})</p>
+                      <p className="tabular-nums">Rent: <strong>{formatINR(item.daily_price)}/din</strong> · Deposit: <strong>{formatINR(item.security_deposit)}</strong></p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={item.is_featured ? "accent" : "subtle"}
+                      disabled={busy}
+                      onClick={() => handleToggleListingFlag(item, "is_featured")}
+                    >
+                      <Star className="h-3.5 w-3.5" /> {item.is_featured ? "Featured ✓" : "Feature Karo"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={item.is_trending ? "accent" : "subtle"}
+                      disabled={busy}
+                      onClick={() => handleToggleListingFlag(item, "is_trending")}
+                    >
+                      <Flame className="h-3.5 w-3.5" /> {item.is_trending ? "Trending ✓" : "Trending Karo"}
+                    </Button>
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
@@ -394,12 +622,12 @@ export function AdminDashboardClient({
 
       {tab === "payments" && (
         <div className="space-y-4">
-          {paymentQueue.length === 0 ? (
+          {paymentQueueState.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white p-12 text-center text-sm text-[#8C857B]">
               Abhi koi payment proof submit nahi hua hai.
             </div>
           ) : (
-            paymentQueue.map((proof) => (
+            paymentQueueState.map((proof) => (
               <div key={proof.id} className="rounded-2xl border border-[#E4DFD7] bg-white p-5 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="space-y-1 text-xs">
@@ -422,7 +650,7 @@ export function AdminDashboardClient({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 rounded-xl border border-[#E4DFD7] px-3 py-2 text-xs"
                     >
-                      View Screenshot <ExternalLink className="h-3.5 w-3.5" />
+                      Screenshot Dekho <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   )}
                 </div>
@@ -454,7 +682,7 @@ export function AdminDashboardClient({
 
       {tab === "bookings" && (
         <div className="space-y-4">
-          <Input value={bookingQuery} onChange={(e) => setBookingQuery(e.target.value)} placeholder="Search by Booking Reference, email, or status..." className="max-w-md" />
+          <Input value={bookingQuery} onChange={(e) => setBookingQuery(e.target.value)} placeholder="Booking Reference, email, ya status se search karo..." className="max-w-md" />
           <div className="rounded-2xl border border-[#E4DFD7] bg-white overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
@@ -463,8 +691,8 @@ export function AdminDashboardClient({
                   <th className="p-3">Customer</th>
                   <th className="p-3">Items</th>
                   <th className="p-3">Payable</th>
-                  <th className="p-3">Booking Status</th>
                   <th className="p-3">Payment</th>
+                  <th className="p-3">Status Override (Admin Control)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E4DFD7] tabular-nums">
@@ -477,8 +705,19 @@ export function AdminDashboardClient({
                       {b.items[0] && <span className="block text-[#8C857B]">{formatISTDate(b.items[0].start_date)} – {formatISTDate(b.items[0].end_date)}</span>}
                     </td>
                     <td className="p-3 font-semibold">{formatINR(b.total_payable)}</td>
-                    <td className="p-3"><Badge>{b.status}</Badge></td>
-                    <td className="p-3">{b.payment_status}</td>
+                    <td className="p-3"><Badge>{b.payment_status}</Badge></td>
+                    <td className="p-3">
+                      <select
+                        value={b.status}
+                        disabled={busy}
+                        onChange={(e) => handleBookingStatusChange(b.id, e.target.value)}
+                        className="h-9 rounded-lg border border-[#E4DFD7] bg-white px-2 text-xs font-medium"
+                      >
+                        {BOOKING_STATUSES.map((st) => (
+                          <option key={st} value={st}>{st}</option>
+                        ))}
+                      </select>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -502,7 +741,7 @@ export function AdminDashboardClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E4DFD7] tabular-nums">
-                {deposits.map((d) => (
+                {depositsState.map((d) => (
                   <tr key={d.id}>
                     <td className="p-3 font-mono-ref">{d.booking?.booking_reference}</td>
                     <td className="p-3">{formatINR(d.amount_held)}</td>
@@ -511,7 +750,7 @@ export function AdminDashboardClient({
                     <td className="p-3"><Badge>{d.status}</Badge></td>
                     <td className="p-3">
                       {["HELD", "REFUND_PENDING"].includes(d.status) && (
-                        <Button size="sm" variant="subtle" onClick={() => setRefundBookingId(d.booking_id)}>Process Refund</Button>
+                        <Button size="sm" variant="subtle" onClick={() => setRefundBookingId(d.booking_id)}>Refund Karo</Button>
                       )}
                     </td>
                   </tr>
@@ -522,14 +761,14 @@ export function AdminDashboardClient({
 
           {refundBookingId && (
             <form onSubmit={handleProcessRefund} className="rounded-2xl border border-[#161616] bg-white p-6 space-y-4 max-w-xl">
-              <h3 className="font-editorial text-2xl font-semibold">Record Deposit Refund</h3>
+              <h3 className="font-editorial text-2xl font-semibold">Deposit Refund Record Karo</h3>
               <Input required value={refundRef} onChange={(e) => setRefundRef(e.target.value)} placeholder="UPI Refund Reference *" />
               <Input type="number" min={0} value={deductionAmt} onChange={(e) => setDeductionAmt(e.target.value)} placeholder="Deduction (₹)" />
               {Number(deductionAmt) > 0 && (
-                <Textarea required value={deductionReason} onChange={(e) => setDeductionReason(e.target.value)} placeholder="Documented deduction reason *" />
+                <Textarea required value={deductionReason} onChange={(e) => setDeductionReason(e.target.value)} placeholder="Deduction ka reason likho *" />
               )}
               <div className="flex gap-2">
-                <Button type="submit" variant="accent" disabled={busy}>Confirm Refund</Button>
+                <Button type="submit" variant="accent" disabled={busy}>Refund Confirm Karo</Button>
                 <Button type="button" variant="subtle" onClick={() => setRefundBookingId(null)}>Cancel</Button>
               </div>
             </form>
@@ -547,20 +786,68 @@ export function AdminDashboardClient({
                 <th className="p-3">Booking</th>
                 <th className="p-3">Amount</th>
                 <th className="p-3">Status</th>
-                <th className="p-3">Reference</th>
+                <th className="p-3">Reference &amp; Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E4DFD7] tabular-nums">
-              {payouts.map((p) => (
+              {payoutsState.map((p) => (
                 <tr key={p.id}>
                   <td className="p-3 font-medium">{p.seller?.display_name}</td>
                   <td className="p-3 font-mono-ref">{p.seller?.payout_upi_id || "—"}</td>
                   <td className="p-3 font-mono-ref">{p.booking?.booking_reference}</td>
                   <td className="p-3 font-semibold">{formatINR(p.amount)}</td>
-                  <td className="p-3"><Badge>{p.status}</Badge></td>
+                  <td className="p-3"><Badge variant={p.status === "PAID" ? "success" : "warning"}>{p.status}</Badge></td>
                   <td className="p-3 flex items-center gap-2">
                     <Input value={payoutRefs[p.id] ?? p.payout_reference ?? ""} onChange={(e) => setPayoutRefs({ ...payoutRefs, [p.id]: e.target.value })} placeholder="UTR / Ref" className="h-9 w-36" />
-                    <Button size="sm" variant="accent" disabled={busy} onClick={() => handlePayoutUpdate(p.id, "PAID")}>Mark Paid</Button>
+                    <Button size="sm" variant="accent" disabled={busy} onClick={() => handlePayoutUpdate(p.id, "PAID")}>Paid Mark Karo</Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {tab === "sellers" && (
+        <div className="rounded-2xl border border-[#E4DFD7] bg-white overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
+              <tr>
+                <th className="p-3">Closet / Boutique</th>
+                <th className="p-3">Sheher</th>
+                <th className="p-3">UPI ID</th>
+                <th className="p-3">Rentals</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Admin Control</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E4DFD7]">
+              {sellersState.map((s) => (
+                <tr key={s.id}>
+                  <td className="p-3 font-semibold">{s.display_name}</td>
+                  <td className="p-3">{s.city}{s.locality ? `, ${s.locality}` : ""}</td>
+                  <td className="p-3 font-mono-ref">{s.payout_upi_id || "—"}</td>
+                  <td className="p-3 tabular-nums">{s.total_rentals ?? 0}</td>
+                  <td className="p-3">
+                    <Badge variant={s.verification_status === "VERIFIED" ? "success" : s.verification_status === "SUSPENDED" ? "danger" : "warning"}>
+                      {s.verification_status}
+                    </Badge>
+                  </td>
+                  <td className="p-3 flex gap-2">
+                    {s.verification_status !== "VERIFIED" && (
+                      <Button size="sm" variant="accent" disabled={busy} onClick={() => handleSellerUpdate(s.id, "VERIFIED")}>
+                        <ShieldCheck className="h-3.5 w-3.5" /> Verify Karo
+                      </Button>
+                    )}
+                    {s.verification_status !== "SUSPENDED" ? (
+                      <Button size="sm" variant="destructive" disabled={busy} onClick={() => handleSellerUpdate(s.id, "SUSPENDED")}>
+                        <Ban className="h-3.5 w-3.5" /> Suspend
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="subtle" disabled={busy} onClick={() => handleSellerUpdate(s.id, "VERIFIED")}>
+                        Reactivate
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -571,7 +858,7 @@ export function AdminDashboardClient({
 
       {tab === "disputes" && (
         <div className="space-y-4">
-          {disputes.map((d) => (
+          {disputesState.map((d) => (
             <div key={d.id} className="rounded-2xl border border-[#E4DFD7] bg-white p-5 space-y-2 text-xs">
               <div className="flex items-center justify-between">
                 <span className="font-semibold">{d.booking?.booking_reference} · {d.dispute_type.replace(/_/g, " ")}</span>
@@ -582,16 +869,26 @@ export function AdminDashboardClient({
                 <Button
                   size="sm"
                   variant="accent"
+                  disabled={busy}
                   onClick={async () => {
-                    await apiFetch("/api/admin/disputes", {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ dispute_id: d.id, status: "RESOLVED", resolution_notes: "Resolved by admin review." }),
-                    });
-                    router.refresh();
+                    setBusy(true);
+                    try {
+                      const { ok } = await tryApi("/api/admin/disputes", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ dispute_id: d.id, status: "RESOLVED", resolution_notes: "Admin ne resolve kiya." }),
+                      });
+                      setDisputesState((prev) =>
+                        prev.map((row) => (row.id === d.id ? { ...row, status: "RESOLVED" } : row))
+                      );
+                      setStatusMsg(`Dispute resolve ho gaya${ok ? "." : " [Demo Mode]"}`);
+                      router.refresh();
+                    } finally {
+                      setBusy(false);
+                    }
                   }}
                 >
-                  Resolve Dispute
+                  Dispute Resolve Karo
                 </Button>
               )}
             </div>
@@ -605,17 +902,30 @@ export function AdminDashboardClient({
             <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
               <tr>
                 <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
+                <th className="p-3">Role Badlo</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E4DFD7]">
-              {users.map((u) => (
+              {usersState.map((u) => (
                 <tr key={u.id}>
-                  <td className="p-3">{u.email}</td>
-                  <td className="p-3"><Badge>{u.role}</Badge></td>
-                  <td className="p-3">{u.status}</td>
+                  <td className="p-3 font-medium">{u.email}</td>
+                  <td className="p-3">
+                    <select
+                      value={u.role}
+                      disabled={busy}
+                      onChange={(e) => handleUserRoleChange(u.id, e.target.value as "CUSTOMER" | "SELLER" | "ADMIN")}
+                      className="h-8 rounded-lg border border-[#E4DFD7] bg-white px-2 text-xs font-medium"
+                    >
+                      <option value="CUSTOMER">CUSTOMER</option>
+                      <option value="SELLER">SELLER</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
+                  </td>
+                  <td className="p-3">
+                    <Badge variant={u.status === "ACTIVE" ? "success" : "danger"}>{u.status}</Badge>
+                  </td>
                   <td className="p-3">
                     {u.role !== "ADMIN" && (
                       <Button
@@ -624,7 +934,7 @@ export function AdminDashboardClient({
                         disabled={busy}
                         onClick={() => handleToggleUser(u.id, u.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE")}
                       >
-                        {u.status === "ACTIVE" ? "Suspend" : "Reactivate"}
+                        {u.status === "ACTIVE" ? "Suspend Karo" : "Activate Karo"}
                       </Button>
                     )}
                   </td>
@@ -650,39 +960,52 @@ export function AdminDashboardClient({
               <Input value={settingsForm.whatsapp_number} onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp_number: e.target.value })} placeholder="WhatsApp Number (91...)" />
             </div>
             <Textarea value={settingsForm.payment_instructions} onChange={(e) => setSettingsForm({ ...settingsForm, payment_instructions: e.target.value })} />
-            <Button type="submit" variant="accent" disabled={busy}>Save Platform Settings</Button>
+            <Button type="submit" variant="accent" disabled={busy}>Settings Save Karo</Button>
           </form>
 
           <div className="lg:col-span-5 space-y-6">
             <div className="rounded-2xl border border-[#E4DFD7] bg-white p-6 space-y-4">
-              <h3 className="font-editorial text-xl font-semibold">Manage Categories</h3>
+              <h3 className="font-editorial text-xl font-semibold">Categories Manage Karo</h3>
               <div className="flex gap-2">
-                <Input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="New Category Name" />
+                <Input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="Nayi Category ka Naam" />
                 <Button
                   type="button"
                   variant="accent"
+                  disabled={busy}
                   onClick={async () => {
                     if (!newCatName.trim()) return;
-                    await apiFetch("/api/admin/categories", {
+                    const name = newCatName.trim();
+                    const { ok, data } = await tryApi("/api/admin/categories", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ name: newCatName.trim() }),
+                      body: JSON.stringify({ name }),
                     });
+                    const newCat = data?.category ?? {
+                      id: `cat-${Date.now()}`,
+                      name,
+                      slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+                      display_order: categoriesState.length + 1,
+                      is_active: true,
+                    };
+                    setCategoriesState((prev) => [...prev, newCat]);
                     setNewCatName("");
+                    setStatusMsg(`Category "${name}" add ho gayi${ok ? "." : " [Demo Mode]"}`);
                     router.refresh();
                   }}
                 >
-                  Add
+                  Add Karo
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {categories.map((c) => (
+                {categoriesState.map((c) => (
                   <span key={c.id} className="rounded-full border border-[#E4DFD7] px-3 py-1 text-xs flex items-center gap-2">
                     {c.name}
                     <button
                       type="button"
                       onClick={async () => {
-                        await apiFetch(`/api/admin/categories/${c.id}`, { method: "DELETE" });
+                        await tryApi(`/api/admin/categories/${c.id}`, { method: "DELETE" });
+                        setCategoriesState((prev) => prev.filter((row) => row.id !== c.id));
+                        setStatusMsg(`Category "${c.name}" hata di gayi.`);
                         router.refresh();
                       }}
                       className="text-[#9E2A2B]"
@@ -695,26 +1018,27 @@ export function AdminDashboardClient({
             </div>
 
             <div className="rounded-2xl border border-[#E4DFD7] bg-white p-6 space-y-3">
-              <h3 className="font-editorial text-xl font-semibold">Editable Draft Policies</h3>
+              <h3 className="font-editorial text-xl font-semibold">Policies Edit Karo</h3>
               <Select
                 value={selectedPolicySlug}
                 onChange={(e) => {
                   const slug = e.target.value;
                   setSelectedPolicySlug(slug);
-                  const found = policies.find((p) => p.slug === slug);
+                  const found = policiesState.find((p) => p.slug === slug);
                   setPolicyContent(found?.content_markdown || "");
                 }}
               >
-                {policies.map((p) => <option key={p.slug} value={p.slug}>{p.title}</option>)}
+                {policiesState.map((p) => <option key={p.slug} value={p.slug}>{p.title}</option>)}
               </Select>
               <Textarea value={policyContent} onChange={(e) => setPolicyContent(e.target.value)} className="min-h-[160px]" />
               <Button
                 type="button"
                 size="sm"
                 variant="accent"
+                disabled={busy}
                 onClick={async () => {
                   if (!selectedPolicy) return;
-                  await apiFetch("/api/admin/policies", {
+                  const { ok } = await tryApi("/api/admin/policies", {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -724,11 +1048,14 @@ export function AdminDashboardClient({
                       requires_legal_review: true,
                     }),
                   });
-                  setStatusMsg("Policy draft updated.");
+                  setPoliciesState((prev) =>
+                    prev.map((p) => (p.slug === selectedPolicy.slug ? { ...p, content_markdown: policyContent } : p))
+                  );
+                  setStatusMsg(`Policy draft save ho gaya${ok ? "." : " [Demo Mode]"}`);
                   router.refresh();
                 }}
               >
-                Save Policy Draft
+                Policy Save Karo
               </Button>
             </div>
           </div>

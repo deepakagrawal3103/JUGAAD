@@ -38,7 +38,9 @@ export default async function AdminDashboardPage() {
   };
 
   // Local demo mode: supply rich sample data when backend is unavailable
+  let isDemoMode = false;
   if (!adminData) {
+    isDemoMode = true;
     const {
       MOCK_ADMIN_METRICS,
       MOCK_ADMIN_PAYMENT_QUEUE,
@@ -48,6 +50,8 @@ export default async function AdminDashboardPage() {
       MOCK_ADMIN_PAYOUTS,
       MOCK_ADMIN_DISPUTES,
       MOCK_ADMIN_USERS,
+      MOCK_ADMIN_SELLERS,
+      MOCK_ADMIN_POLICIES,
     } = await import("@/lib/data/mockDashboards");
     adminData = {
       metrics: MOCK_ADMIN_METRICS,
@@ -58,21 +62,24 @@ export default async function AdminDashboardPage() {
       payouts: MOCK_ADMIN_PAYOUTS,
       disputes: MOCK_ADMIN_DISPUTES,
       users: MOCK_ADMIN_USERS,
+      sellers: MOCK_ADMIN_SELLERS,
+      policies: MOCK_ADMIN_POLICIES,
     };
   }
 
   return (
     <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      <div className="border-b border-[#E4DFD7] pb-6">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-[#EB5E4C]">Protected Operations</p>
-        <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Admin Control Panel</h1>
-      </div>
-
-      {!adminData && (
-        <div className="rounded-xl border border-[#E8D5B5] bg-[#FCF7EC] p-4 text-xs text-[#9A6B1E]">
-          Ensure the standalone backend API server is running on <code>{process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}</code> to load Admin metrics and queues.
+      <div className="border-b border-[#E4DFD7] pb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#EB5E4C]">Super Admin Control</p>
+          <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Admin Control Panel</h1>
         </div>
-      )}
+        {isDemoMode && (
+          <span className="rounded-full border border-[#E8D5B5] bg-[#FCF7EC] px-3.5 py-1.5 text-xs font-medium text-[#9A6B1E]">
+            Interactive Demo Mode — Sabhi Controls Active Hain
+          </span>
+        )}
+      </div>
 
       <AdminDashboardClient
         metrics={(adminData?.metrics as never) ?? fallbackMetrics}
@@ -83,6 +90,7 @@ export default async function AdminDashboardPage() {
         payouts={(adminData?.payouts as never) ?? []}
         disputes={(adminData?.disputes as never) ?? []}
         users={(adminData?.users as never) ?? []}
+        sellers={(adminData?.sellers as never) ?? []}
         categories={(adminData?.categories as never) ?? shell.categories}
         policies={(adminData?.policies as never) ?? []}
         settings={(adminData?.settings as never) ?? shell.settings}

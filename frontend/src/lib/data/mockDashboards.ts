@@ -385,3 +385,60 @@ export const MOCK_ADMIN_USERS = [
   { id: "usr-004", email: "admin@closetloop.in", role: "ADMIN", status: "ACTIVE" },
   { id: "usr-005", email: "rahul.test@gmail.com", role: "CUSTOMER", status: "SUSPENDED" },
 ];
+
+export const MOCK_ADMIN_SELLERS = [
+  {
+    id: "sel-001",
+    display_name: "Priya's Closet",
+    city: "Pune",
+    locality: "Koregaon Park",
+    verification_status: "VERIFIED",
+    payout_upi_id: "priya@paytm",
+    total_rentals: 18,
+    rating_avg: 4.9,
+  },
+  {
+    id: "sel-002",
+    display_name: "Royal Attire Studio",
+    city: "Mumbai",
+    locality: "Bandra West",
+    verification_status: "PENDING",
+    payout_upi_id: "royalattire@okicici",
+    total_rentals: 0,
+    rating_avg: 0,
+  },
+  {
+    id: "sel-003",
+    display_name: "Meera Designer Rentals",
+    city: "Delhi",
+    locality: "Hauz Khas",
+    verification_status: "VERIFIED",
+    payout_upi_id: "meera@ybl",
+    total_rentals: 11,
+    rating_avg: 4.7,
+  },
+];
+
+export const MOCK_ADMIN_POLICIES = [
+  {
+    id: "pol-001",
+    slug: "rental-policy",
+    title: "Rental Policy",
+    content_markdown: "# Rental Policy\n\nSabhi kapde dry-cleaned aur quality check ke baad bheje jaate hain. Return time par na hone par daily late fee lagegi.",
+    requires_legal_review: true,
+  },
+  {
+    id: "pol-002",
+    slug: "security-deposit-policy",
+    title: "Security Deposit Policy",
+    content_markdown: "# Security Deposit Policy\n\nSecurity deposit 100% refundable hai. Kapde sahi salamat wapas aane par 24-48 ghante mein UPI se refund hota hai.",
+    requires_legal_review: true,
+  },
+  {
+    id: "pol-003",
+    slug: "cancellation-policy",
+    title: "Cancellation Policy",
+    content_markdown: "# Cancellation Policy\n\nRental start date se 48 ghante pehle cancel karne par full refund milta hai.",
+    requires_legal_review: true,
+  },
+];
