@@ -352,6 +352,26 @@ adminRouter.patch("/sellers", async (req, res) => {
     res.status(500).json({ error: error.message });
     return;
   }
+  if (data?.user_id) {
+    if (parsed.data.verification_status === "VERIFIED") {
+      await supabase.from("users").update({ role: "SELLER" }).eq("id", data.user_id);
+      await supabase.from("notifications").insert({
+        user_id: data.user_id,
+        type: "SELLER_APPROVED",
+        title: "Seller Account Approved!",
+        body: "Badhai ho! Admin ne aapka Seller account approve kar diya hai. Ab aap apni listings daal sakte hain.",
+        link: "/seller",
+      });
+    } else if (parsed.data.verification_status === "SUSPENDED") {
+      await supabase.from("notifications").insert({
+        user_id: data.user_id,
+        type: "SELLER_SUSPENDED",
+        title: "Seller Account Suspended",
+        body: "Aapka Seller account admin ne suspend kar diya hai. Details ke liye support se sampark karein.",
+        link: "/contact",
+      });
+    }
+  }
   res.json({ seller: data });
 });
 

@@ -20,6 +20,7 @@ export default function SellerApplyPage() {
     payout_account_name: "",
   });
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,15 +39,32 @@ export default function SellerApplyPage() {
       }
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Could not activate seller profile.");
+        setError(data.error || "Could not submit seller application.");
         return;
       }
-      router.push("/seller/listings/new");
+      setSubmitted(true);
       router.refresh();
     } finally {
       setLoading(false);
     }
   };
+
+  if (submitted) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16">
+        <div className="rounded-2xl border border-[#E8D5B5] bg-[#FCF7EC] p-8 space-y-4 text-center">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#9A6B1E] font-semibold">Admin Approval Pending</p>
+          <h1 className="font-editorial text-3xl font-semibold text-[#161616]">Aapki Seller Request Submit Ho Gayi Hai!</h1>
+          <p className="text-sm text-[#57534E]">
+            Admin aapki profile check karke approve karega. <strong>Admin approval ke baad hi aapka Seller account active hoga</strong> aur aap kapde list kar payenge.
+          </p>
+          <Button variant="accent" onClick={() => router.push("/dashboard")}>
+            Dashboard Par Wapas Jao
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12 space-y-8">

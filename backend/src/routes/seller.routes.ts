@@ -76,7 +76,7 @@ sellerRouter.post("/apply", requireAuth, async (req: AuthenticatedRequest, res) 
       pickup_address: parsed.data.pickup_address,
       payout_upi_id: parsed.data.payout_upi_id,
       payout_account_name: parsed.data.payout_account_name,
-      verification_status: "APPROVED",
+      verification_status: "PENDING",
     })
     .select()
     .single();
@@ -86,19 +86,15 @@ sellerRouter.post("/apply", requireAuth, async (req: AuthenticatedRequest, res) 
     return;
   }
 
-  if (req.auth!.role === "CUSTOMER") {
-    await supabase.from("users").update({ role: "SELLER" }).eq("id", req.auth!.userId);
-  }
-
   await supabase.from("notifications").insert({
     user_id: req.auth!.userId,
-    type: "SELLER_ONBOARDED",
-    title: "Seller Studio Activated",
-    body: "Your closet profile is active. Submit your first outfit for admin review.",
-    link: "/seller/listings/new",
+    type: "SELLER_APPLICATION_PENDING",
+    title: "Seller Request Submitted",
+    body: "Aapki seller application admin approval ke liye bhej di gayi hai. Approval ke baad hi account active hoga.",
+    link: "/dashboard",
   });
 
-  res.status(201).json({ seller: created });
+  res.status(201).json({ seller: created, pendingApproval: true });
 });
 
 sellerRouter.get(
@@ -220,6 +216,23 @@ sellerRouter.post(
   async (req: AuthenticatedRequest, res) => {
     if (!req.auth!.sellerProfileId) {
       res.status(403).json({ error: "Complete seller onboarding first." });
+      return;
+    }
+
+    const supabaseCheck = getServiceSupabase();
+    const { data: sellerProf } = await supabaseCheck
+      .from("seller_profiles")
+      .select("verification_status")
+      .eq("id", req.auth!.sellerProfileId)
+      .maybeSingle();
+
+    if (
+      req.auth!.role !== "ADMIN" &&
+      (!sellerProf || !["VERIFIED", "APPROVED"].includes(sellerProf.verification_status))
+    ) {
+      res.status(403).json({
+        error: "Aapka Seller account abhi Admin approval ke liye pending hai. Approval ke baad hi listing daal sakte hain.",
+      });
       return;
     }
 

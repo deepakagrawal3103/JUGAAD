@@ -12,12 +12,14 @@ export default async function SellerDashboardPage() {
   let listings: Array<any> = [];
   let bookingItems: Array<any> = [];
   let payouts: Array<any> = [];
+  let verificationStatus: string = "VERIFIED";
 
   try {
     const { isSupabaseServerConfigured } = await import("@/lib/supabase/server");
     if (isSupabaseServerConfigured() && sellerId) {
       const supabase = await createServerSupabase();
-      const [{ data: lData }, { data: bData }, { data: pData }] = await Promise.all([
+      const [{ data: sellerRow }, { data: lData }, { data: bData }, { data: pData }] = await Promise.all([
+        supabase.from("seller_profiles").select("verification_status").eq("id", sellerId).maybeSingle(),
         supabase
           .from("products")
           .select("*, images:product_images(public_url, is_primary)")
@@ -38,12 +40,38 @@ export default async function SellerDashboardPage() {
           .eq("seller_id", sellerId)
           .order("created_at", { ascending: false }),
       ]);
+      if (sellerRow?.verification_status) verificationStatus = sellerRow.verification_status;
       listings = lData || [];
       bookingItems = bData || [];
       payouts = pData || [];
     }
   } catch {
     // fallback gracefully
+  }
+
+  if (ctx.role !== "ADMIN" && !["VERIFIED", "APPROVED"].includes(verificationStatus)) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-16">
+        <div className="rounded-2xl border border-[#E8D5B5] bg-[#FCF7EC] p-8 space-y-4 text-center">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#9A6B1E] font-semibold">
+            Status: {verificationStatus}
+          </p>
+          <h1 className="font-editorial text-3xl font-semibold text-[#161616]">
+            {verificationStatus === "SUSPENDED"
+              ? "Aapka Seller Account Suspend Kar Diya Gaya Hai"
+              : "Seller Account Admin Approval Ke Liye Pending Hai"}
+          </h1>
+          <p className="text-sm text-[#57534E]">
+            {verificationStatus === "SUSPENDED"
+              ? "Kripya details ke liye support (/contact) se sampark karein."
+              : "Admin ke approve karne ke baad hi aapka Seller account active hoga aur aap listings daal sakenge."}
+          </p>
+          <Link href="/dashboard" className="inline-block rounded-xl bg-[#161616] text-white px-5 py-2.5 text-xs font-semibold">
+            Customer Dashboard Par Jao
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   // Local demo mode: supply rich sample data when Supabase is empty
