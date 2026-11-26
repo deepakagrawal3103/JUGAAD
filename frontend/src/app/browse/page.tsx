@@ -106,7 +106,18 @@ export default async function BrowsePage({
       const from = (page - 1) * limit;
       const { data, count } = await query.range(from, from + limit - 1);
       products = (data as unknown as ProductWithRelations[]) ?? [];
-      total = count ?? products.length;
+
+      // Hide pieces that are currently out on active rent today
+      const todayIST = new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().split("T")[0];
+      const { data: activeRentItems } = await supabase
+        .from("booking_items")
+        .select("product_id, booking:bookings!inner(status)")
+        .in("booking.status", ["CONFIRMED", "READY_FOR_PICKUP", "DISPATCHED", "RENTAL_ACTIVE", "RETURN_DUE"])
+        .lte("start_date", todayIST)
+        .gte("end_date", todayIST);
+      const rentedTodayIds = new Set((activeRentItems ?? []).map((r: { product_id: string }) => r.product_id));
+      products = products.filter((p) => !rentedTodayIds.has(p.id));
+      total = Math.max(0, (count ?? products.length) - rentedTodayIds.size);
 
       if (startDate && endDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate) && /^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
         const checks = await Promise.all(

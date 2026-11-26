@@ -13,6 +13,8 @@ import {
   CheckCircle2,
   Truck,
   Store,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +72,42 @@ export function ProductDetailClient({
   const [availability, setAvailability] = useState<AvailabilityResult | null>(null);
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartFeedback, setCartFeedback] = useState<string | null>(null);
+  const [calMonth, setCalMonth] = useState(() => {
+    const [y, m] = todayIST.split("-").map(Number);
+    return new Date(y, m - 1, 1);
+  });
+  const [calPickMode, setCalPickMode] = useState<"start" | "end">("start");
+  const [calMsg, setCalMsg] = useState<string | null>(null);
+
+  const isDateBlocked = (iso: string) =>
+    unavailableDates.some((u) => iso >= u.start_date && iso <= u.end_date);
+
+  const handleCalendarDayClick = (iso: string) => {
+    setCalMsg(null);
+    if (iso < todayIST || isDateBlocked(iso)) return;
+    if (calPickMode === "start") {
+      setStartDate(iso);
+      const nextEnd = addDaysDateOnly(iso, Math.max(1, product.min_rental_days) - 1);
+      setEndDate(nextEnd);
+      setCalPickMode("end");
+    } else {
+      if (iso < startDate) {
+        setStartDate(iso);
+        setEndDate(addDaysDateOnly(iso, Math.max(1, product.min_rental_days) - 1));
+        return;
+      }
+      // Check if any date between startDate and iso is blocked
+      const hasBlockedBetween = unavailableDates.some(
+        (u) => !(u.end_date < startDate || u.start_date > iso)
+      );
+      if (hasBlockedBetween) {
+        setCalMsg("Is beech mein kuch dates already rented hain — koi aur available dates chuno.");
+        return;
+      }
+      setEndDate(iso);
+      setCalPickMode("start");
+    }
+  };
 
   const applyPresetDays = (days: number) => {
     const baseStart = startDate || addDaysDateOnly(todayIST, 2);
@@ -320,6 +358,93 @@ export function ProductDetailClient({
               <Input type="date" min={startDate || todayIST} value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             </div>
           </div>
+
+          {/* Interactive Availability Calendar */}
+          {(() => {
+            const year = calMonth.getFullYear();
+            const month = calMonth.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const monthLabel = calMonth.toLocaleString("en-IN", { month: "long", year: "numeric" });
+            const cells: (string | null)[] = Array(firstDay).fill(null);
+            for (let d = 1; d <= daysInMonth; d++) {
+              const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+              cells.push(iso);
+            }
+            return (
+              <div className="rounded-xl border border-[#E4DFD7] bg-[#FAF8F5] p-3.5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-[#161616]">
+                    Availability Calendar ({calPickMode === "start" ? "Start Date Chuno" : "Return Date Chuno"})
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setCalMonth(new Date(year, month - 1, 1))}
+                      className="p-1 rounded-lg border border-[#E4DFD7] bg-white hover:border-[#161616]"
+                      aria-label="Previous month"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="text-xs font-medium px-2 min-w-[110px] text-center">{monthLabel}</span>
+                    <button
+                      type="button"
+                      onClick={() => setCalMonth(new Date(year, month + 1, 1))}
+                      className="p-1 rounded-lg border border-[#E4DFD7] bg-white hover:border-[#161616]"
+                      aria-label="Next month"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[#8C857B]">
+                  {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((w) => (
+                    <div key={w} className="py-1">{w}</div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                  {cells.map((iso, idx) => {
+                    if (!iso) return <div key={`empty-${idx}`} />;
+                    const past = iso < todayIST;
+                    const blocked = isDateBlocked(iso);
+                    const isSelected = startDate && endDate && iso >= startDate && iso <= endDate;
+                    const dayNum = Number(iso.split("-")[2]);
+
+                    return (
+                      <button
+                        key={iso}
+                        type="button"
+                        disabled={past || blocked}
+                        onClick={() => handleCalendarDayClick(iso)}
+                        title={blocked ? "Already Rented / Booked" : past ? "Past date" : "Available — click to select"}
+                        className={`h-8 rounded-lg text-xs font-medium transition-colors tabular-nums ${
+                          blocked
+                            ? "bg-[#FDF1F1] text-[#9E2A2B] line-through cursor-not-allowed border border-[#E6C5C5]"
+                            : past
+                            ? "text-[#C5BEB3] cursor-not-allowed"
+                            : isSelected
+                            ? "bg-[#EB5E4C] text-white font-semibold"
+                            : "bg-white text-[#161616] border border-[#E4DFD7] hover:border-[#2F5D46] hover:bg-[#EDF5F0]"
+                        }`}
+                      >
+                        {dayNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 text-[10px] text-[#57534E] pt-1">
+                  <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-white border border-[#E4DFD7] inline-block" /> Available</span>
+                  <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#FDF1F1] border border-[#E6C5C5] inline-block" /> Rented / Booked</span>
+                  <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#EB5E4C] inline-block" /> Selected</span>
+                </div>
+
+                {calMsg && <p className="text-[11px] text-[#9E2A2B] font-medium">{calMsg}</p>}
+              </div>
+            );
+          })()}
 
           {/* Delivery & Pickup Options */}
           <div className="space-y-2 pt-1">

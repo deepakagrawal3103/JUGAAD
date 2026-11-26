@@ -27,7 +27,7 @@ adminRouter.get("/dashboard", async (_req, res) => {
     { data: settings },
   ] = await Promise.all([
     supabase.from("users").select("*").order("created_at", { ascending: false }),
-    supabase.from("seller_profiles").select("*").order("created_at", { ascending: false }),
+    supabase.from("seller_profiles").select("*, user:users(email, phone, status)").order("created_at", { ascending: false }),
     supabase
       .from("products")
       .select(`
@@ -353,6 +353,69 @@ adminRouter.patch("/sellers", async (req, res) => {
     return;
   }
   res.json({ seller: data });
+});
+
+adminRouter.post("/sellers", async (req, res) => {
+  const schema = z.object({
+    display_name: z.string().trim().min(2).max(120),
+    email: z.string().email(),
+    phone: z.string().trim().min(7).max(20),
+    city: z.string().trim().min(2).max(80),
+    locality: z.string().trim().max(80).optional().nullable(),
+    pickup_address: z.string().trim().min(4).max(300),
+    payout_upi_id: z.string().trim().min(3).max(100),
+    payout_account_name: z.string().trim().min(2).max(120),
+    bio: z.string().max(500).optional().nullable(),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid seller payload." });
+    return;
+  }
+
+  const supabase = getServiceSupabase();
+  const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
+    email: parsed.data.email,
+    email_confirm: true,
+    user_metadata: { full_name: parsed.data.display_name, phone: parsed.data.phone },
+  });
+
+  if (authErr || !authData.user) {
+    res.status(400).json({ error: authErr?.message || "Could not create seller auth user." });
+    return;
+  }
+
+  const userId = authData.user.id;
+  await supabase.from("users").upsert({
+    id: userId,
+    email: parsed.data.email,
+    phone: parsed.data.phone,
+    role: "SELLER",
+    status: "ACTIVE",
+  });
+
+  const { data: seller, error: sellerErr } = await supabase
+    .from("seller_profiles")
+    .insert({
+      user_id: userId,
+      display_name: parsed.data.display_name,
+      bio: parsed.data.bio || null,
+      city: parsed.data.city,
+      locality: parsed.data.locality || null,
+      pickup_address: parsed.data.pickup_address,
+      payout_upi_id: parsed.data.payout_upi_id,
+      payout_account_name: parsed.data.payout_account_name,
+      verification_status: "VERIFIED",
+    })
+    .select()
+    .single();
+
+  if (sellerErr) {
+    res.status(500).json({ error: sellerErr.message });
+    return;
+  }
+
+  res.status(201).json({ seller: { ...seller, email: parsed.data.email, phone: parsed.data.phone } });
 });
 
 adminRouter.patch("/bookings/:id/status", async (req: AuthenticatedRequest, res) => {

@@ -10,6 +10,9 @@ export const BRAND_CONFIG = {
   defaultCommissionPercent: 30,
   defaultReservationHoldMinutes: 20,
   defaultCleaningBufferDays: 1,
+  contactPhone: "+91 6232744465",
+  contactWhatsapp: "916232744465",
+  contactEmail: "deepa3103agrawal@gmail.com",
 } as const;
 
 export const OCCASIONS = [

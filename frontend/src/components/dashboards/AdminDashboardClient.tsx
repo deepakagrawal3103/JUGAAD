@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, X, ExternalLink, MessageSquare, Star, Flame, ShieldCheck, Ban } from "lucide-react";
+import { Check, X, ExternalLink, MessageSquare, Star, Flame, ShieldCheck, Ban, Plus, Phone, Mail, MessageCircle, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -98,12 +98,18 @@ interface AdminProps {
   sellers?: Array<{
     id: string;
     display_name: string;
+    email?: string | null;
+    phone?: string | null;
+    bio?: string | null;
     city: string;
     locality?: string | null;
+    pickup_address?: string | null;
     verification_status: string;
     payout_upi_id?: string | null;
+    payout_account_name?: string | null;
     total_rentals?: number;
     rating_avg?: number;
+    user?: { email?: string | null; phone?: string | null; status?: string | null } | null;
   }>;
   disputes: Array<{
     id: string;
@@ -175,6 +181,19 @@ export function AdminDashboardClient({
   const [deductionAmt, setDeductionAmt] = useState("0");
   const [deductionReason, setDeductionReason] = useState("");
   const [payoutRefs, setPayoutRefs] = useState<Record<string, string>>({});
+  const [selectedSeller, setSelectedSeller] = useState<NonNullable<AdminProps["sellers"]>[number] | null>(null);
+  const [showAddSeller, setShowAddSeller] = useState(false);
+  const [newSellerForm, setNewSellerForm] = useState({
+    display_name: "",
+    email: "",
+    phone: "",
+    city: "",
+    locality: "",
+    pickup_address: "",
+    payout_upi_id: "",
+    payout_account_name: "",
+    bio: "",
+  });
 
   const [settingsForm, setSettingsForm] = useState({
     brand_name: settings.brand_name,
@@ -372,7 +391,47 @@ export function AdminDashboardClient({
       setSellersState((prev) =>
         prev.map((s) => (s.id === sellerId ? { ...s, verification_status: verificationStatus } : s))
       );
+      if (selectedSeller?.id === sellerId) {
+        setSelectedSeller((prev) => (prev ? { ...prev, verification_status: verificationStatus } : null));
+      }
       setStatusMsg(`Seller status ${verificationStatus} set ho gaya${ok ? "." : " [Demo Mode]"}`);
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleCreateSeller = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setStatusMsg(null);
+    try {
+      const { ok, data } = await tryApi("/api/admin/sellers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSellerForm),
+      });
+      const created = data?.seller ?? {
+        id: `sel-${Date.now()}`,
+        ...newSellerForm,
+        verification_status: "VERIFIED",
+        total_rentals: 0,
+        rating_avg: 0,
+      };
+      setSellersState((prev) => [created, ...prev]);
+      setNewSellerForm({
+        display_name: "",
+        email: "",
+        phone: "",
+        city: "",
+        locality: "",
+        pickup_address: "",
+        payout_upi_id: "",
+        payout_account_name: "",
+        bio: "",
+      });
+      setShowAddSeller(false);
+      setStatusMsg(`Naya Seller "${created.display_name}" ban gaya aur Verify ho gaya${ok ? "." : " [Demo Mode]"}`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -809,50 +868,170 @@ export function AdminDashboardClient({
       )}
 
       {tab === "sellers" && (
-        <div className="rounded-2xl border border-[#E4DFD7] bg-white overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
-              <tr>
-                <th className="p-3">Closet / Boutique</th>
-                <th className="p-3">Sheher</th>
-                <th className="p-3">UPI ID</th>
-                <th className="p-3">Rentals</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Admin Control</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E4DFD7]">
-              {sellersState.map((s) => (
-                <tr key={s.id}>
-                  <td className="p-3 font-semibold">{s.display_name}</td>
-                  <td className="p-3">{s.city}{s.locality ? `, ${s.locality}` : ""}</td>
-                  <td className="p-3 font-mono-ref">{s.payout_upi_id || "—"}</td>
-                  <td className="p-3 tabular-nums">{s.total_rentals ?? 0}</td>
-                  <td className="p-3">
-                    <Badge variant={s.verification_status === "VERIFIED" ? "success" : s.verification_status === "SUSPENDED" ? "danger" : "warning"}>
-                      {s.verification_status}
-                    </Badge>
-                  </td>
-                  <td className="p-3 flex gap-2">
-                    {s.verification_status !== "VERIFIED" && (
-                      <Button size="sm" variant="accent" disabled={busy} onClick={() => handleSellerUpdate(s.id, "VERIFIED")}>
-                        <ShieldCheck className="h-3.5 w-3.5" /> Verify Karo
-                      </Button>
-                    )}
-                    {s.verification_status !== "SUSPENDED" ? (
-                      <Button size="sm" variant="destructive" disabled={busy} onClick={() => handleSellerUpdate(s.id, "SUSPENDED")}>
-                        <Ban className="h-3.5 w-3.5" /> Suspend
-                      </Button>
-                    ) : (
-                      <Button size="sm" variant="subtle" disabled={busy} onClick={() => handleSellerUpdate(s.id, "VERIFIED")}>
-                        Reactivate
-                      </Button>
-                    )}
-                  </td>
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-editorial text-2xl font-semibold text-[#161616]">Sellers &amp; Boutiques Management</h2>
+              <p className="text-xs text-[#57534E]">Naya seller account banao, kisi ko bhi suspend/verify karo, aur seedha contact karo.</p>
+            </div>
+            <Button variant="accent" size="sm" onClick={() => setShowAddSeller(!showAddSeller)}>
+              <Plus className="h-4 w-4" /> {showAddSeller ? "Form Band Karo" : "Naya Seller Account Banao"}
+            </Button>
+          </div>
+
+          {showAddSeller && (
+            <form onSubmit={handleCreateSeller} className="rounded-2xl border border-[#161616] bg-white p-6 space-y-4">
+              <h3 className="font-editorial text-xl font-semibold">Naya Seller Account Banao</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Input required value={newSellerForm.display_name} onChange={(e) => setNewSellerForm({ ...newSellerForm, display_name: e.target.value })} placeholder="Boutique / Closet Naam *" />
+                <Input type="email" required value={newSellerForm.email} onChange={(e) => setNewSellerForm({ ...newSellerForm, email: e.target.value })} placeholder="Seller Email *" />
+                <Input required value={newSellerForm.phone} onChange={(e) => setNewSellerForm({ ...newSellerForm, phone: e.target.value })} placeholder="Phone / WhatsApp (+91...) *" />
+                <Input required value={newSellerForm.city} onChange={(e) => setNewSellerForm({ ...newSellerForm, city: e.target.value })} placeholder="Sheher (City) *" />
+                <Input value={newSellerForm.locality} onChange={(e) => setNewSellerForm({ ...newSellerForm, locality: e.target.value })} placeholder="Locality / Area" />
+                <Input required value={newSellerForm.payout_upi_id} onChange={(e) => setNewSellerForm({ ...newSellerForm, payout_upi_id: e.target.value })} placeholder="Payout UPI ID *" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input required value={newSellerForm.payout_account_name} onChange={(e) => setNewSellerForm({ ...newSellerForm, payout_account_name: e.target.value })} placeholder="Bank / UPI Account Holder Naam *" />
+                <Input required value={newSellerForm.pickup_address} onChange={(e) => setNewSellerForm({ ...newSellerForm, pickup_address: e.target.value })} placeholder="Pickup Address *" />
+              </div>
+              <Textarea value={newSellerForm.bio} onChange={(e) => setNewSellerForm({ ...newSellerForm, bio: e.target.value })} placeholder="Boutique Bio (Optional)" />
+              <div className="flex gap-2">
+                <Button type="submit" variant="accent" disabled={busy}>Seller Account Create Karo</Button>
+                <Button type="button" variant="subtle" onClick={() => setShowAddSeller(false)}>Cancel</Button>
+              </div>
+            </form>
+          )}
+
+          <div className="rounded-2xl border border-[#E4DFD7] bg-white overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
+                <tr>
+                  <th className="p-3">Closet / Boutique</th>
+                  <th className="p-3">Sheher</th>
+                  <th className="p-3">Contact &amp; UPI</th>
+                  <th className="p-3">Rentals</th>
+                  <th className="p-3">Status</th>
+                  <th className="p-3">Admin Control</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#E4DFD7]">
+                {sellersState.map((s) => {
+                  const sEmail = s.email || s.user?.email || "—";
+                  const sPhone = s.phone || s.user?.phone || "—";
+                  return (
+                    <tr key={s.id}>
+                      <td className="p-3 font-semibold">{s.display_name}</td>
+                      <td className="p-3">{s.city}{s.locality ? `, ${s.locality}` : ""}</td>
+                      <td className="p-3">
+                        <span className="block font-mono-ref">{sPhone}</span>
+                        <span className="block text-[#8C857B]">{s.payout_upi_id || sEmail}</span>
+                      </td>
+                      <td className="p-3 tabular-nums">{s.total_rentals ?? 0}</td>
+                      <td className="p-3">
+                        <Badge variant={s.verification_status === "VERIFIED" ? "success" : s.verification_status === "SUSPENDED" ? "danger" : "warning"}>
+                          {s.verification_status}
+                        </Badge>
+                      </td>
+                      <td className="p-3 flex flex-wrap gap-2">
+                        <Button size="sm" variant="subtle" onClick={() => setSelectedSeller(s)}>
+                          <Eye className="h-3.5 w-3.5" /> Profile &amp; Contact
+                        </Button>
+                        {s.verification_status !== "VERIFIED" && (
+                          <Button size="sm" variant="accent" disabled={busy} onClick={() => handleSellerUpdate(s.id, "VERIFIED")}>
+                            <ShieldCheck className="h-3.5 w-3.5" /> Verify Karo
+                          </Button>
+                        )}
+                        {s.verification_status !== "SUSPENDED" ? (
+                          <Button size="sm" variant="destructive" disabled={busy} onClick={() => handleSellerUpdate(s.id, "SUSPENDED")}>
+                            <Ban className="h-3.5 w-3.5" /> Suspend
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="subtle" disabled={busy} onClick={() => handleSellerUpdate(s.id, "VERIFIED")}>
+                            Reactivate
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {selectedSeller && (
+            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setSelectedSeller(null)}>
+              <div className="bg-white rounded-2xl border border-[#E4DFD7] max-w-lg w-full p-6 space-y-5" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-start justify-between border-b border-[#E4DFD7] pb-4">
+                  <div>
+                    <Badge variant={selectedSeller.verification_status === "VERIFIED" ? "success" : selectedSeller.verification_status === "SUSPENDED" ? "danger" : "warning"}>
+                      {selectedSeller.verification_status}
+                    </Badge>
+                    <h3 className="font-editorial text-2xl font-semibold mt-1">{selectedSeller.display_name}</h3>
+                    <p className="text-xs text-[#57534E]">
+                      {selectedSeller.city}{selectedSeller.locality ? `, ${selectedSeller.locality}` : ""} · {selectedSeller.total_rentals ?? 0} rentals
+                    </p>
+                  </div>
+                  <button type="button" onClick={() => setSelectedSeller(null)} className="p-1 text-[#8C857B] hover:text-[#161616]">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {selectedSeller.bio && <p className="text-xs text-[#57534E] leading-relaxed">{selectedSeller.bio}</p>}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#FAF8F5] p-4 rounded-xl border border-[#E4DFD7]">
+                  <div>
+                    <span className="text-[#8C857B] block">Email</span>
+                    <span className="font-medium break-all">{selectedSeller.email || selectedSeller.user?.email || "Not provided"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#8C857B] block">Phone / WhatsApp</span>
+                    <span className="font-mono-ref font-medium">{selectedSeller.phone || selectedSeller.user?.phone || "Not provided"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#8C857B] block">Payout UPI ID</span>
+                    <span className="font-mono-ref font-medium">{selectedSeller.payout_upi_id || "—"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#8C857B] block">Account Holder</span>
+                    <span className="font-medium">{selectedSeller.payout_account_name || "—"}</span>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <span className="text-[#8C857B] block">Private Pickup Address</span>
+                    <span className="font-medium">{selectedSeller.pickup_address || "—"}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {(selectedSeller.phone || selectedSeller.user?.phone) && (
+                    <>
+                      <a
+                        href={`tel:${(selectedSeller.phone || selectedSeller.user?.phone || "").replace(/\s+/g, "")}`}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-[#161616] text-white px-4 py-2 text-xs font-medium"
+                      >
+                        <Phone className="h-3.5 w-3.5" /> Call Karo
+                      </a>
+                      <a
+                        href={`https://wa.me/${(selectedSeller.phone || selectedSeller.user?.phone || "").replace(/[^0-9]/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-[#2F5D46] text-white px-4 py-2 text-xs font-medium"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" /> WhatsApp Karo
+                      </a>
+                    </>
+                  )}
+                  {(selectedSeller.email || selectedSeller.user?.email) && (
+                    <a
+                      href={`mailto:${selectedSeller.email || selectedSeller.user?.email}`}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-[#E4DFD7] px-4 py-2 text-xs font-medium hover:border-[#161616]"
+                    >
+                      <Mail className="h-3.5 w-3.5" /> Email Bhejo
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -116,7 +116,8 @@ export async function getHomepageData() {
     seller:seller_profiles(id, display_name, city, locality, verification_status, total_rentals, rating_avg)
   `;
 
-  const [{ data: banners }, { data: featured }, { data: trending }, { data: recent }] =
+  const todayIST = new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().split("T")[0];
+  const [{ data: banners }, { data: featured }, { data: trending }, { data: recent }, { data: activeRentItems }] =
     await Promise.all([
       supabase.from("banners").select("*").eq("is_active", true).order("display_order"),
       supabase
@@ -142,7 +143,17 @@ export async function getHomepageData() {
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(8),
+      supabase
+        .from("booking_items")
+        .select("product_id, booking:bookings!inner(status)")
+        .in("booking.status", ["CONFIRMED", "READY_FOR_PICKUP", "DISPATCHED", "RENTAL_ACTIVE", "RETURN_DUE"])
+        .lte("start_date", todayIST)
+        .gte("end_date", todayIST),
     ]);
+
+  const rentedTodayIds = new Set((activeRentItems ?? []).map((r: { product_id: string }) => r.product_id));
+  const filterAvailable = (rows: unknown) =>
+    ((rows as ProductWithRelations[]) ?? []).filter((p) => !rentedTodayIds.has(p.id));
 
   let wishlistProductIds: string[] = [];
   if (sessionUser) {
@@ -162,9 +173,9 @@ export async function getHomepageData() {
 
   return {
     banners: banners ?? [],
-    featured: (featured as unknown as ProductWithRelations[]) ?? [],
-    trending: (trending as unknown as ProductWithRelations[]) ?? [],
-    recent: (recent as unknown as ProductWithRelations[]) ?? [],
+    featured: filterAvailable(featured),
+    trending: filterAvailable(trending),
+    recent: filterAvailable(recent),
     wishlistProductIds,
   };
 }

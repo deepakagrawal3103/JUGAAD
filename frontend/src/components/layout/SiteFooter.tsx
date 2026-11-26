@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { POLICY_LINKS } from "@/config/brand";
+import { BRAND_CONFIG, POLICY_LINKS } from "@/config/brand";
 
 export function SiteFooter({
   brandName,
@@ -42,7 +42,20 @@ export function SiteFooter({
               <li><Link href="/dashboard" className="hover:underline">Meri Bookings</Link></li>
               <li><Link href="/wishlist" className="hover:underline">Saved Wishlist</Link></li>
               <li><Link href="/cart" className="hover:underline">Rental Bag</Link></li>
+              <li><Link href="/contact" className="hover:underline font-medium text-[#EB5E4C]">Contact Us</Link></li>
             </ul>
+            <div className="pt-2 space-y-1 text-xs text-[#57534E]">
+              <p>
+                <a href={`tel:${BRAND_CONFIG.contactPhone.replace(/\s+/g, "")}`} className="hover:underline font-medium">
+                  {BRAND_CONFIG.contactPhone}
+                </a>
+              </p>
+              <p>
+                <a href={`mailto:${BRAND_CONFIG.contactEmail}`} className="hover:underline break-all">
+                  {BRAND_CONFIG.contactEmail}
+                </a>
+              </p>
+            </div>
           </div>
 
           <div className="md:col-span-3 space-y-3">
