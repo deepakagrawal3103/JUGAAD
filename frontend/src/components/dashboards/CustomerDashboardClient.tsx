@@ -240,9 +240,14 @@ export function CustomerDashboardClient({
                       </p>
                     )}
                     {countdown && (
-                      <p className="text-xs text-[#EB5E4C] font-medium flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" /> Wapsi ka Time: {countdown.label}
-                      </p>
+                      <div className="space-y-0.5">
+                        <p className="text-xs text-[#EB5E4C] font-medium flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5" /> Wapsi ka Time: {countdown.label}
+                        </p>
+                        <p className="text-[11px] text-[#9A6B1E]">
+                          3rd day time par return karein, warna har extra day par rent ka 30% ({formatINR(Math.round(booking.total_rental_amount * 0.3))}/day) late fee lagega.
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>

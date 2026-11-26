@@ -106,6 +106,23 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* 3-DAY RENTAL POLICY STRIP */}
+      <section className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-[#E8D5B5] bg-[#FCF7EC] px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#9A6B1E]">
+              3-Day Rental Policy — Zaroori Jaankari
+            </p>
+            <p className="text-xs sm:text-sm text-[#161616]">
+              Outfit aap <strong>1 din pehle pehen sakte hain</strong> aur <strong>3rd day return</strong> karna hoga. Late hone par <strong>har extra day par rent amount ka 30%</strong> charge lagega.
+            </p>
+          </div>
+          <Link href="/policies/rental-policy" className="text-xs font-semibold text-[#9A6B1E] underline shrink-0">
+            Poori Policy Padho →
+          </Link>
+        </div>
+      </section>
+
       {/* SHOP BY CATEGORY */}
       <section id="categories" className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex items-end justify-between border-b border-[#E4DFD7] pb-4">

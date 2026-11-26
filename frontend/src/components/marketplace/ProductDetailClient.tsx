@@ -565,12 +565,18 @@ export function ProductDetailClient({
               <span className="text-xs font-semibold text-[#161616]">{formatINR(product.late_fee_per_day)}/d</span>
             </div>
           </div>
-          <p className="text-xs text-[#8C857B]">
-            Returns due by 9:00 PM IST on your return date.{" "}
-            <a href="/policies/cancellation-policy" className="underline text-[#161616]">
-              Cancellation Policy
-            </a>
-          </p>
+          <div className="rounded-xl border border-[#E8D5B5] bg-[#FCF7EC] p-3.5 text-xs text-[#9A6B1E] space-y-1">
+            <p className="font-semibold text-[#161616]">3-Day Rental &amp; Late Return Policy</p>
+            <p>
+              • Aap outfit <strong>1 din pehle pehen sakte hain</strong> aur <strong>3rd day 9:00 PM IST tak return</strong> karna zaroori hai.
+            </p>
+            <p>
+              • 3rd day ke baad return karne par <strong>har extra day par rent amount ka 30%</strong> (approx. {formatINR(Math.round((availability?.pricing?.rentalAmount ?? product.daily_price * 3) * 0.3))}/extra day) late fee lagega.{" "}
+              <a href="/policies/cancellation-policy" className="underline text-[#161616]">
+                Policies Dekho
+              </a>
+            </p>
+          </div>
         </div>
       </div>
 

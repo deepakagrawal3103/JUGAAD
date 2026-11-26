@@ -12,7 +12,7 @@ const FALLBACK_SETTINGS: AdminSettingsRecord = {
   cleaning_buffer_days: BRAND_CONFIG.defaultCleaningBufferDays,
   late_fee_grace_hours: 4,
   late_fee_policy_summary:
-    "Returns beyond the grace window incur the listing's daily late fee, subject to documented inspection and admin verification.",
+    "3-Day Rental Policy: Aap event se 1 din pehle outfit pehen sakte hain aur 3rd day return karna zaroori hai. 3rd day ke baad har extra day par rent amount ka 30% late fee lagega.",
   upi_id: "",
   upi_display_name: `${BRAND_CONFIG.name} Rentals`,
   upi_qr_url: "",

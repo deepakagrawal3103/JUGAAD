@@ -248,6 +248,13 @@ export function CartClient() {
           <p>Jab tak aap UPI payment aur UTR submit karte ho, yeh dates sirf aapke liye lock rahengi.</p>
         </div>
 
+        <div className="rounded-xl border border-[#E8D5B5] bg-[#FCF7EC] p-3.5 text-xs text-[#9A6B1E] space-y-1">
+          <p className="font-semibold text-[#161616]">3-Day Policy &amp; Late Fee</p>
+          <p>
+            1 din pehle pehen sakte hain aur 3rd day return karna hoga. Late hone par har extra day par rent amount ka <strong>30%</strong> late fee lagega.
+          </p>
+        </div>
+
         <Button type="submit" variant="accent" size="lg" disabled={checkingOut || hasConflict} className="w-full">
           {checkingOut ? "Dates Lock Ho Rahi Hain..." : "Dates Reserve Karo & UPI se Pay Karo"}
           <ArrowRight className="h-4 w-4" />

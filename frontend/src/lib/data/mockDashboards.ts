@@ -439,7 +439,7 @@ export const MOCK_ADMIN_POLICIES = [
     id: "pol-001",
     slug: "rental-policy",
     title: "Rental Policy",
-    content_markdown: "# Rental Policy\n\nSabhi kapde dry-cleaned aur quality check ke baad bheje jaate hain. Return time par na hone par daily late fee lagegi.",
+    content_markdown: "# 3-Day Rental Policy\n\n- **Day 1 (1 Din Pehle):** Aap apna outfit event se 1 din pehle le kar pehen aur try kar sakte hain.\n- **Day 2:** Event Day.\n- **Day 3 (Return Day):** 3rd day ko 9:00 PM IST tak outfit wapas return karna zaroori hai.\n- **Late Fee:** 3rd day ke baad return karne par **har extra day par rent amount ka 30% charge** lagega.",
     requires_legal_review: true,
   },
   {

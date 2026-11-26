@@ -334,7 +334,14 @@ export function PaymentCheckoutClient({
 
           <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] p-3 text-xs text-[#2F5D46] flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 shrink-0" />
-            <span>Commission applies only to rental charges. Deposit is 100% protected.</span>
+            <span>Commission sirf rent par lagta hai. Deposit 100% safe &amp; refundable hai.</span>
+          </div>
+
+          <div className="rounded-xl border border-[#E8D5B5] bg-[#FCF7EC] p-3 text-xs text-[#9A6B1E] space-y-1">
+            <p className="font-semibold text-[#161616]">3-Day Return Rule:</p>
+            <p>
+              Outfit 1 din pehle pehen sakte hain aur 3rd day return karna zaroori hai. Har extra day par rent amount ka <strong>30% ({formatINR(Math.round(booking.total_rental_amount * 0.3))}/day)</strong> late fee lagega.
+            </p>
           </div>
         </div>
       </div>
