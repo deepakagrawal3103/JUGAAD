@@ -37,6 +37,11 @@ export function createApp() {
   app.use("/api/customer", customerRouter);
   app.use("/api/admin", adminRouter);
 
+  // Explicit 404 handler for unmatched API routes
+  app.use((_req, res) => {
+    res.status(404).json({ error: "Endpoint not found." });
+  });
+
   app.use(errorHandler);
   return app;
 }
