@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { apiFetch } from "@/lib/api/client";
 import { formatINR } from "@/lib/utils";
 import { formatISTDate, formatISTDateTime } from "@/lib/domain/dates";
+import { EventDashboardBanner } from "@/components/dashboards/EventDashboardBanner";
 import { LISTING_STATUS_LABELS, type ListingStatus } from "@/types/database";
 
 interface SellerListingRow {
@@ -160,6 +161,7 @@ export function SellerDashboardClient({
 
   return (
     <div className="space-y-8">
+      <EventDashboardBanner role="seller" />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
           <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Total / Live</p>

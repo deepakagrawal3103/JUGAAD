@@ -75,7 +75,7 @@ export default async function SellerDashboardPage() {
   }
 
   // Local demo mode: supply rich sample data when Supabase is empty
-  if (listings.length === 0) {
+  if (listings.length === 0 && process.env.NODE_ENV !== "production") {
     const { MOCK_SELLER_LISTINGS, MOCK_SELLER_BOOKING_ITEMS, MOCK_SELLER_PAYOUTS } = await import("@/lib/data/mockDashboards");
     listings = MOCK_SELLER_LISTINGS as any;
     bookingItems = MOCK_SELLER_BOOKING_ITEMS as any;

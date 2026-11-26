@@ -6,7 +6,11 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ): void {
-  const message =
-    err instanceof Error && err.message ? err.message : "Internal server error.";
-  res.status(500).json({ error: message });
+  if (process.env.NODE_ENV !== "production" && err instanceof Error) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Internal server error." });
+    return;
+  }
+  console.error("Unhandled server error");
+  res.status(500).json({ error: "Internal server error." });
 }

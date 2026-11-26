@@ -35,7 +35,7 @@ wishlistRouter.get("/", requireAuth, async (req: AuthenticatedRequest, res) => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 
@@ -97,7 +97,7 @@ wishlistRouter.post("/", requireAuth, async (req: AuthenticatedRequest, res) => 
   });
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 

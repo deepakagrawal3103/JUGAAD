@@ -2,6 +2,10 @@ import { redirect } from "next/navigation";
 import { createServerSupabase, isSupabaseServerConfigured } from "@/lib/supabase/server";
 import type { UserRole, UserStatus } from "@/types/database";
 
+function isLocalDemoAuthEnabled(): boolean {
+  return process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH === "true";
+}
+
 export interface AuthenticatedContext {
   userId: string;
   accessToken: string;
@@ -13,8 +17,9 @@ export interface AuthenticatedContext {
 }
 
 export async function getCurrentSessionUser(): Promise<AuthenticatedContext | null> {
-  // 1. Check for Demo / Local Test Session Cookie
+  // Demo sessions exist only for local development and must never grant a role in production.
   try {
+    if (isLocalDemoAuthEnabled()) {
     const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
     const demoCookie = cookieStore.get("closetloop_demo_session");
@@ -29,6 +34,7 @@ export async function getCurrentSessionUser(): Promise<AuthenticatedContext | nu
         fullName: parsed.fullName,
         sellerProfileId: parsed.sellerProfileId,
       };
+    }
     }
   } catch {
     // ignore
@@ -48,7 +54,7 @@ export async function getCurrentSessionUser(): Promise<AuthenticatedContext | nu
   const [{ data: userRow }, { data: profile }, { data: seller }] = await Promise.all([
     supabase.from("users").select("role, status, email").eq("id", user.id).maybeSingle(),
     supabase.from("user_profiles").select("full_name").eq("user_id", user.id).maybeSingle(),
-    supabase.from("seller_profiles").select("id").eq("user_id", user.id).maybeSingle(),
+    supabase.rpc("current_seller_profile_id"),
   ]);
 
   if (!userRow || userRow.status === "SUSPENDED") return null;
@@ -60,7 +66,7 @@ export async function getCurrentSessionUser(): Promise<AuthenticatedContext | nu
     role: (userRow.role as UserRole) || "CUSTOMER",
     status: (userRow.status as UserStatus) || "ACTIVE",
     fullName: profile?.full_name || user.email?.split("@")[0] || "Member",
-    sellerProfileId: seller?.id ?? null,
+    sellerProfileId: seller ?? null,
   };
 }
 

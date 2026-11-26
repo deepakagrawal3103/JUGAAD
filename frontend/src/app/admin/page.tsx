@@ -39,7 +39,7 @@ export default async function AdminDashboardPage() {
 
   // Local demo mode: supply rich sample data when backend is unavailable
   let isDemoMode = false;
-  if (!adminData) {
+  if (!adminData && process.env.NODE_ENV !== "production") {
     isDemoMode = true;
     const {
       MOCK_ADMIN_METRICS,
@@ -65,6 +65,20 @@ export default async function AdminDashboardPage() {
       sellers: MOCK_ADMIN_SELLERS,
       policies: MOCK_ADMIN_POLICIES,
     };
+  }
+
+  if (!adminData) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16">
+        <div role="alert" className="rounded-2xl border border-[#E8D5B5] bg-[#FCF7EC] p-8 space-y-3">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#9A6B1E]">Live setup incomplete</p>
+          <h1 className="font-editorial text-3xl font-semibold text-[#161616]">Admin data abhi connect nahi hai</h1>
+          <p className="text-sm leading-relaxed text-[#57534E]">
+            Dashboard actions ko real data par chalane ke liye Vercel par <code>NEXT_PUBLIC_API_URL</code>, Supabase URL aur anon key configure karein. Demo data production mein load nahi kiya jayega.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

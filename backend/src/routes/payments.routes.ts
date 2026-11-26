@@ -14,6 +14,14 @@ const upload = multer({
 
 const ALLOWED_PROOF_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
+function matchesProofSignature(mime: string, bytes: Buffer): boolean {
+  if (mime === "image/jpeg") return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  if (mime === "image/png") return bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  if (mime === "image/webp") return bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP";
+  if (mime === "application/pdf") return bytes.toString("ascii", 0, 5) === "%PDF-";
+  return false;
+}
+
 paymentsRouter.post(
   "/upload-proof",
   requireAuth,
@@ -29,8 +37,12 @@ paymentsRouter.post(
       res.status(400).json({ error: "Upload JPG, PNG, WebP, or PDF proof only." });
       return;
     }
+    if (!matchesProofSignature(file.mimetype, file.buffer)) {
+      res.status(400).json({ error: "File contents do not match the selected file type." });
+      return;
+    }
 
-    const ext = file.mimetype === "application/pdf" ? "pdf" : file.mimetype === "image/png" ? "png" : "jpg";
+    const ext = file.mimetype === "application/pdf" ? "pdf" : file.mimetype === "image/png" ? "png" : file.mimetype === "image/webp" ? "webp" : "jpg";
     const storagePath = `${req.auth!.userId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
 
     const supabase = getServiceSupabase();
@@ -39,7 +51,7 @@ paymentsRouter.post(
       .upload(storagePath, file.buffer, { contentType: file.mimetype, upsert: false });
 
     if (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Request could not be completed." });
       return;
     }
 
@@ -59,6 +71,10 @@ paymentsRouter.post(
     }
 
     const { booking_id, utr_reference, paid_amount, paid_at, screenshot_path, notes } = parsed.data;
+    if (screenshot_path && !screenshot_path.startsWith(`${req.auth!.userId}/`)) {
+      res.status(400).json({ error: "Payment proof must belong to the signed-in account." });
+      return;
+    }
     const supabase = getServiceSupabase();
 
     await supabase.rpc("release_expired_reservations");
@@ -93,7 +109,7 @@ paymentsRouter.post(
       return;
     }
 
-    await supabase.from("payment_proofs").insert({
+    const { error: proofError } = await supabase.from("payment_proofs").insert({
       payment_id: payment.id,
       booking_id,
       submitted_by: req.auth!.userId,
@@ -104,16 +120,28 @@ paymentsRouter.post(
       notes: notes || null,
       review_status: "PENDING",
     });
+    if (proofError) {
+      res.status(500).json({ error: "Could not save payment proof." });
+      return;
+    }
 
-    await supabase
+    const { error: paymentError } = await supabase
       .from("payments")
       .update({ submitted_amount: paid_amount, status: "VERIFICATION_PENDING", rejection_reason: null })
       .eq("id", payment.id);
+    if (paymentError) {
+      res.status(500).json({ error: "Payment proof was received but payment status could not be updated." });
+      return;
+    }
 
-    await supabase
+    const { error: bookingError } = await supabase
       .from("bookings")
       .update({ status: "PAYMENT_VERIFICATION_PENDING", payment_status: "PAYMENT_VERIFICATION_PENDING" })
       .eq("id", booking_id);
+    if (bookingError) {
+      res.status(500).json({ error: "Payment proof was received but booking status could not be updated." });
+      return;
+    }
 
     await supabase.from("booking_status_logs").insert({
       booking_id,

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, X, ExternalLink, MessageSquare, Star, Flame, ShieldCheck, Ban, Plus, Phone, Mail, MessageCircle, Eye } from "lucide-react";
+import { Check, X, ExternalLink, MessageSquare, Star, Flame, ShieldCheck, Ban, Plus, Phone, Mail, MessageCircle, Eye, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { apiFetch, getApiUrl } from "@/lib/api/client";
 import { formatINR } from "@/lib/utils";
 import { formatISTDate, formatISTDateTime } from "@/lib/domain/dates";
+import { EventDashboardBanner } from "@/components/dashboards/EventDashboardBanner";
+import { createClient } from "@/lib/supabase/client";
 import type { AdminSettingsRecord, CategoryRecord } from "@/types/database";
 
 type AdminTab =
@@ -156,6 +158,17 @@ export function AdminDashboardClient({
   settings,
 }: AdminProps) {
   const router = useRouter();
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch {
+      // The local demo session has no Supabase browser session to sign out.
+    }
+    await fetch("/api/auth/demo-session", { method: "DELETE" }).catch(() => {});
+    router.replace("/admin/login");
+    router.refresh();
+  };
   const [tab, setTab] = useState<AdminTab>("overview");
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -233,11 +246,15 @@ export function AdminDashboardClient({
     setBusy(true);
     setStatusMsg(null);
     try {
-      const { ok } = await tryApi(`/api/admin/listings/${id}`, {
+      const { ok, data } = await tryApi(`/api/admin/listings/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, notes: reviewNotes[id] || null, ...extra }),
       });
+      if (!ok) {
+        setStatusMsg(`ERROR: ${data.error || "Listing save nahi hui. Koi change persist nahi hua."}`);
+        return;
+      }
       const nextStatus = action === "UNPUBLISHED" ? "PAUSED" : action;
       setListingsState((prev) =>
         prev.map((item) =>
@@ -251,7 +268,7 @@ export function AdminDashboardClient({
             : item
         )
       );
-      setStatusMsg(`Listing update ho gayi (${nextStatus})${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg(`Listing update ho gayi (${nextStatus}).`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -279,11 +296,15 @@ export function AdminDashboardClient({
     setBusy(true);
     setStatusMsg(null);
     try {
-      const { ok } = await tryApi(`/api/admin/payments/${bookingId}`, {
+      const { ok, data } = await tryApi(`/api/admin/payments/${bookingId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ decision, note: paymentNotes[bookingId] || null }),
       });
+      if (!ok) {
+        setStatusMsg(`ERROR: ${data.error || "Payment update nahi hui. Booking abhi confirm nahi hui."}`);
+        return;
+      }
       setPaymentQueueState((prev) =>
         prev.map((p) => (p.booking_id === bookingId ? { ...p, review_status: decision } : p))
       );
@@ -294,7 +315,7 @@ export function AdminDashboardClient({
           )
         );
       }
-      setStatusMsg(`Payment ${decision} mark ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg(`Payment ${decision} mark ho gaya.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -305,15 +326,19 @@ export function AdminDashboardClient({
     setBusy(true);
     setStatusMsg(null);
     try {
-      const { ok } = await tryApi(`/api/admin/bookings/${bookingId}/status`, {
+      const { ok, data } = await tryApi(`/api/admin/bookings/${bookingId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),
       });
+      if (!ok) {
+        setStatusMsg(`ERROR: ${data.error || "Booking status update nahi hua."}`);
+        return;
+      }
       setBookingsState((prev) =>
         prev.map((b) => (b.id === bookingId ? { ...b, status: nextStatus } : b))
       );
-      setStatusMsg(`Booking status "${nextStatus}" par set ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg(`Booking status "${nextStatus}" par set ho gaya.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -326,7 +351,7 @@ export function AdminDashboardClient({
     setBusy(true);
     try {
       const deduction = Number(deductionAmt || 0);
-      const { ok } = await tryApi("/api/admin/refunds", {
+      const { ok, data } = await tryApi("/api/admin/refunds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -336,6 +361,10 @@ export function AdminDashboardClient({
           refund_reference: refundRef,
         }),
       });
+      if (!ok) {
+        setStatusMsg(`ERROR: ${data.error || "Refund record save nahi hua. Deposit status unchanged hai."}`);
+        return;
+      }
       setDepositsState((prev) =>
         prev.map((d) => {
           if (d.booking_id !== refundBookingId) return d;
@@ -350,7 +379,7 @@ export function AdminDashboardClient({
           };
         })
       );
-      setStatusMsg(`Deposit refund process ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg("Deposit refund record process ho gaya.");
       setRefundBookingId(null);
       setRefundRef("");
       setDeductionAmt("0");
@@ -365,15 +394,19 @@ export function AdminDashboardClient({
     setBusy(true);
     try {
       const ref = payoutRefs[payoutId] || null;
-      const { ok } = await tryApi("/api/admin/payouts", {
+      const { ok, data } = await tryApi("/api/admin/payouts", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ payout_id: payoutId, status, payout_reference: ref }),
       });
+      if (!ok) {
+        setStatusMsg(`ERROR: ${data.error || "Payout update save nahi hua."}`);
+        return;
+      }
       setPayoutsState((prev) =>
         prev.map((p) => (p.id === payoutId ? { ...p, status, payout_reference: ref ?? p.payout_reference } : p))
       );
-      setStatusMsg(`Payout ${status} mark ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg(`Payout ${status} mark ho gaya.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -383,18 +416,22 @@ export function AdminDashboardClient({
   const handleSellerUpdate = async (sellerId: string, verificationStatus: "VERIFIED" | "PENDING" | "SUSPENDED") => {
     setBusy(true);
     try {
-      const { ok } = await tryApi("/api/admin/sellers", {
+      const { ok, data } = await tryApi("/api/admin/sellers", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ seller_id: sellerId, verification_status: verificationStatus }),
       });
+      if (!ok) {
+        setStatusMsg(`ERROR: ${data.error || "Seller approval save nahi hui."}`);
+        return;
+      }
       setSellersState((prev) =>
         prev.map((s) => (s.id === sellerId ? { ...s, verification_status: verificationStatus } : s))
       );
       if (selectedSeller?.id === sellerId) {
         setSelectedSeller((prev) => (prev ? { ...prev, verification_status: verificationStatus } : null));
       }
-      setStatusMsg(`Seller status ${verificationStatus} set ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg(`Seller status ${verificationStatus} set ho gaya.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -411,6 +448,10 @@ export function AdminDashboardClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newSellerForm),
       });
+      if (!ok) {
+        setStatusMsg(data.error || "Naya Seller create nahi hua.");
+        return;
+      }
       const created = data?.seller ?? {
         id: `sel-${Date.now()}`,
         ...newSellerForm,
@@ -431,7 +472,7 @@ export function AdminDashboardClient({
         bio: "",
       });
       setShowAddSeller(false);
-      setStatusMsg(`Naya Seller "${created.display_name}" ban gaya aur Verify ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg(`Naya Seller "${created.display_name}" ban gaya aur Verify ho gaya.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -441,15 +482,16 @@ export function AdminDashboardClient({
   const handleToggleUser = async (userId: string, nextStatus: "ACTIVE" | "SUSPENDED") => {
     setBusy(true);
     try {
-      const { ok } = await tryApi("/api/admin/users", {
+      const { ok, data } = await tryApi("/api/admin/users", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, status: nextStatus }),
       });
+      if (!ok) { setStatusMsg(`ERROR: ${data.error || "User status save nahi hua."}`); return; }
       setUsersState((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, status: nextStatus } : u))
       );
-      setStatusMsg(`User status ${nextStatus} set ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg(`User status ${nextStatus} set ho gaya.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -459,15 +501,16 @@ export function AdminDashboardClient({
   const handleUserRoleChange = async (userId: string, nextRole: "CUSTOMER" | "SELLER" | "ADMIN") => {
     setBusy(true);
     try {
-      const { ok } = await tryApi("/api/admin/users", {
+      const { ok, data } = await tryApi("/api/admin/users", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, role: nextRole }),
       });
+      if (!ok) { setStatusMsg(`ERROR: ${data.error || "User role save nahi hua."}`); return; }
       setUsersState((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, role: nextRole } : u))
       );
-      setStatusMsg(`User role ${nextRole} set ho gaya${ok ? "." : " [Demo Mode]"}`);
+      setStatusMsg(`User role ${nextRole} set ho gaya.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -478,7 +521,7 @@ export function AdminDashboardClient({
     e.preventDefault();
     setBusy(true);
     try {
-      const { ok } = await tryApi("/api/admin/settings", {
+      const { ok, data } = await tryApi("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -489,7 +532,8 @@ export function AdminDashboardClient({
           late_fee_grace_hours: Number(settingsForm.late_fee_grace_hours),
         }),
       });
-      setStatusMsg(`Platform settings save ho gayi${ok ? "." : " [Demo Mode]"}`);
+      if (!ok) { setStatusMsg(`ERROR: ${data.error || "Settings save nahi hui."}`); return; }
+      setStatusMsg("Platform settings save ho gayi.");
       router.refresh();
     } finally {
       setBusy(false);
@@ -542,10 +586,13 @@ export function AdminDashboardClient({
             {t.label}
           </button>
         ))}
+        <Button type="button" variant="outline" onClick={handleLogout} className="ml-auto gap-2">
+          <LogOut className="h-3.5 w-3.5" /> Logout
+        </Button>
       </div>
 
       {statusMsg && (
-        <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] px-4 py-3 text-xs font-medium text-[#2F5D46] flex items-center justify-between">
+        <div className={`rounded-xl border px-4 py-3 text-xs font-medium flex items-center justify-between ${statusMsg.startsWith("ERROR:") ? "border-[#E6C5C5] bg-[#FDF1F1] text-[#9E2A2B]" : "border-[#C4DACB] bg-[#EDF5F0] text-[#2F5D46]"}`}>
           <span>{statusMsg}</span>
           <button type="button" onClick={() => setStatusMsg(null)} className="underline text-[11px]">Band Karo</button>
         </div>
@@ -553,6 +600,7 @@ export function AdminDashboardClient({
 
       {tab === "overview" && (
         <div className="space-y-6">
+          <EventDashboardBanner role="admin" onAction={() => setTab("sellers")} />
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {[
               { label: "Total Users", val: usersState.length || metrics.totalUsers, goto: "users" as AdminTab },
@@ -1052,15 +1100,16 @@ export function AdminDashboardClient({
                   onClick={async () => {
                     setBusy(true);
                     try {
-                      const { ok } = await tryApi("/api/admin/disputes", {
+                      const { ok, data } = await tryApi("/api/admin/disputes", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ dispute_id: d.id, status: "RESOLVED", resolution_notes: "Admin ne resolve kiya." }),
                       });
+                      if (!ok) { setStatusMsg(`ERROR: ${data.error || "Dispute update save nahi hua."}`); return; }
                       setDisputesState((prev) =>
                         prev.map((row) => (row.id === d.id ? { ...row, status: "RESOLVED" } : row))
                       );
-                      setStatusMsg(`Dispute resolve ho gaya${ok ? "." : " [Demo Mode]"}`);
+                      setStatusMsg("Dispute resolve ho gaya.");
                       router.refresh();
                     } finally {
                       setBusy(false);
@@ -1159,6 +1208,7 @@ export function AdminDashboardClient({
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ name }),
                     });
+                    if (!ok) { setStatusMsg(`ERROR: ${data.error || "Category add nahi hui."}`); return; }
                     const newCat = data?.category ?? {
                       id: `cat-${Date.now()}`,
                       name,
@@ -1168,7 +1218,7 @@ export function AdminDashboardClient({
                     };
                     setCategoriesState((prev) => [...prev, newCat]);
                     setNewCatName("");
-                    setStatusMsg(`Category "${name}" add ho gayi${ok ? "." : " [Demo Mode]"}`);
+                    setStatusMsg(`Category "${name}" add ho gayi.`);
                     router.refresh();
                   }}
                 >
@@ -1182,7 +1232,8 @@ export function AdminDashboardClient({
                     <button
                       type="button"
                       onClick={async () => {
-                        await tryApi(`/api/admin/categories/${c.id}`, { method: "DELETE" });
+                        const { ok, data } = await tryApi(`/api/admin/categories/${c.id}`, { method: "DELETE" });
+                        if (!ok) { setStatusMsg(`ERROR: ${data.error || "Category delete nahi hui."}`); return; }
                         setCategoriesState((prev) => prev.filter((row) => row.id !== c.id));
                         setStatusMsg(`Category "${c.name}" hata di gayi.`);
                         router.refresh();
@@ -1217,7 +1268,7 @@ export function AdminDashboardClient({
                 disabled={busy}
                 onClick={async () => {
                   if (!selectedPolicy) return;
-                  const { ok } = await tryApi("/api/admin/policies", {
+                  const { ok, data } = await tryApi("/api/admin/policies", {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1227,10 +1278,11 @@ export function AdminDashboardClient({
                       requires_legal_review: true,
                     }),
                   });
+                  if (!ok) { setStatusMsg(`ERROR: ${data.error || "Policy save nahi hui."}`); return; }
                   setPoliciesState((prev) =>
                     prev.map((p) => (p.slug === selectedPolicy.slug ? { ...p, content_markdown: policyContent } : p))
                   );
-                  setStatusMsg(`Policy draft save ho gaya${ok ? "." : " [Demo Mode]"}`);
+                  setStatusMsg("Policy draft save ho gaya.");
                   router.refresh();
                 }}
               >

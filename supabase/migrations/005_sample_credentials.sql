@@ -14,6 +14,11 @@ DECLARE
   v_seller_enc_pw TEXT := crypt('Seller@123456', gen_salt('bf'));
   v_customer_enc_pw TEXT := crypt('User@123456', gen_salt('bf'));
 BEGIN
+  IF current_setting('app.allow_sample_credentials', true) IS DISTINCT FROM 'true' THEN
+    RAISE NOTICE 'Skipping development-only sample accounts; opt in only on a disposable local database.';
+    RETURN;
+  END IF;
+
   -- 1. Insert Auth Users if not present
   INSERT INTO auth.users (
     id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at

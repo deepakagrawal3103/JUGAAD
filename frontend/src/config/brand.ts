@@ -3,7 +3,9 @@ export const BRAND_CONFIG = {
   tagline:
     process.env.NEXT_PUBLIC_BRAND_TAGLINE ||
     "Your next look doesn't have to be yours.",
-  apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000",
+  apiBaseUrl:
+    process.env.NEXT_PUBLIC_API_URL ||
+    (process.env.NODE_ENV === "development" ? "http://localhost:4000" : ""),
   currencyCode: "INR",
   currencySymbol: "₹",
   timezone: "Asia/Kolkata",

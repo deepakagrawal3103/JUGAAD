@@ -1,8 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
+  if (process.env.NODE_ENV !== "development" || process.env.NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH !== "true") {
+    return NextResponse.json({ error: "Demo sign-in is disabled in production." }, { status: 404 });
+  }
+
   try {
-    const { role } = await req.json();
+    const body = await req.json();
+    const role = typeof body?.role === "string" ? body.role : "CUSTOMER";
 
     const users: Record<string, { userId: string; role: string; fullName: string; email: string; sellerProfileId: string | null }> = {
       ADMIN: {
@@ -35,7 +40,9 @@ export async function POST(req: NextRequest) {
     res.cookies.set("closetloop_demo_session", JSON.stringify(targetUser), {
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
-      sameSite: "lax",
+      sameSite: "strict",
+      httpOnly: true,
+      secure: false,
     });
 
     return res;

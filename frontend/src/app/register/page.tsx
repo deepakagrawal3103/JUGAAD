@@ -6,11 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/dashboard";
+  const redirectTo = safeInternalRedirect(searchParams.get("redirect"));
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");

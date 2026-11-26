@@ -11,6 +11,13 @@ import { listingPayloadSchema, sellerApplySchema } from "../validators/schemas.j
 
 export const sellerRouter = Router();
 
+function matchesImageSignature(mime: string, bytes: Buffer): boolean {
+  if (mime === "image/jpeg") return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  if (mime === "image/png") return bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  if (mime === "image/webp") return bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP";
+  return false;
+}
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: ENV.maxImageSizeBytes },
@@ -57,7 +64,7 @@ sellerRouter.post("/apply", requireAuth, async (req: AuthenticatedRequest, res) 
       .single();
 
     if (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Request could not be completed." });
       return;
     }
     res.json({ seller: updated });
@@ -82,7 +89,7 @@ sellerRouter.post("/apply", requireAuth, async (req: AuthenticatedRequest, res) 
     .single();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 
@@ -166,6 +173,10 @@ sellerRouter.post(
       res.status(400).json({ error: "Upload JPEG, PNG, or WebP images only." });
       return;
     }
+    if (!matchesImageSignature(file.mimetype, file.buffer)) {
+      res.status(400).json({ error: "File contents do not match the selected image type." });
+      return;
+    }
 
     const ext = file.mimetype === "image/png" ? "png" : file.mimetype === "image/webp" ? "webp" : "jpg";
     const storagePath = `${req.auth!.userId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
@@ -176,7 +187,7 @@ sellerRouter.post(
       .upload(storagePath, file.buffer, { contentType: file.mimetype, upsert: false });
 
     if (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Request could not be completed." });
       return;
     }
 
@@ -290,7 +301,7 @@ sellerRouter.post(
       .single();
 
     if (error || !product) {
-      res.status(500).json({ error: error?.message || "Failed to create listing." });
+      res.status(500).json({ error: "Failed to create listing." });
       return;
     }
 
@@ -377,7 +388,7 @@ sellerRouter.patch(
         .select()
         .single();
       if (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Request could not be completed." });
         return;
       }
       res.json({ product: updated });
@@ -430,7 +441,7 @@ sellerRouter.patch(
       .single();
 
     if (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Request could not be completed." });
       return;
     }
 
@@ -536,7 +547,7 @@ sellerRouter.post(
       .single();
 
     if (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Request could not be completed." });
       return;
     }
     res.status(201).json({ blocked: data });

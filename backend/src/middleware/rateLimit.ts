@@ -11,6 +11,13 @@ export function rateLimit(action: string, maxRequests: number, windowMs: number)
     const now = Date.now();
     const recent = (buckets.get(key) ?? []).filter((t) => t > now - windowMs);
 
+    // Keep this process-local fallback bounded during anonymous traffic spikes.
+    if (buckets.size > 10_000) {
+      for (const [bucketKey, timestamps] of buckets) {
+        if (!timestamps.some((timestamp) => timestamp > now - windowMs)) buckets.delete(bucketKey);
+      }
+    }
+
     if (recent.length >= maxRequests) {
       res.status(429).json({ error: "Rate limit exceeded. Please wait before retrying." });
       return;

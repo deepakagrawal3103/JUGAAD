@@ -4,6 +4,9 @@ import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 export function getApiUrl(path: string): string {
   const base = BRAND_CONFIG.apiBaseUrl.replace(/\/+$/, "");
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  if (!base) {
+    throw new Error("Marketplace API is not configured. Set NEXT_PUBLIC_API_URL in the deployment environment.");
+  }
   return `${base}${cleanPath}`;
 }
 

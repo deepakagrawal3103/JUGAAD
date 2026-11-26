@@ -15,11 +15,12 @@ import { wishlistRouter } from "./routes/wishlist.routes.js";
 export function createApp() {
   const app = express();
 
+  if (ENV.nodeEnv === "production") app.set("trust proxy", 1);
   app.use(helmet());
   app.use(
     cors({
       origin: ENV.corsOrigin.split(",").map((s) => s.trim()),
-      credentials: true,
+      credentials: false,
     })
   );
   app.use(express.json({ limit: "2mb" }));

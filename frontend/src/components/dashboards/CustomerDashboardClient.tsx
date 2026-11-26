@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { apiFetch } from "@/lib/api/client";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { formatINR } from "@/lib/utils";
+import { EventDashboardBanner } from "@/components/dashboards/EventDashboardBanner";
 import { formatISTDate, formatISTDateTime, getCountdownParts } from "@/lib/domain/dates";
 import { BOOKING_STATUS_LABELS, type BookingStatus } from "@/types/database";
 
@@ -124,6 +125,7 @@ export function CustomerDashboardClient({
 
   return (
     <div className="space-y-8">
+      <EventDashboardBanner role="participant" />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
           <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Kul Bookings</p>

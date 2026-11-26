@@ -161,7 +161,7 @@ adminRouter.patch("/listings/:id", async (req: AuthenticatedRequest, res) => {
     .single();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 
@@ -214,7 +214,7 @@ adminRouter.post("/payments/:bookingId", async (req: AuthenticatedRequest, res) 
   });
 
   if (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: "Payment decision could not be applied." });
     return;
   }
   res.json(data);
@@ -236,7 +236,7 @@ adminRouter.patch("/settings", async (req: AuthenticatedRequest, res) => {
     .single();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   res.json({ settings: data });
@@ -256,7 +256,7 @@ adminRouter.post("/categories", async (req, res) => {
     .select()
     .single();
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   res.status(201).json({ category: data });
@@ -293,7 +293,7 @@ adminRouter.patch("/policies", async (req: AuthenticatedRequest, res) => {
     .select()
     .single();
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   res.json({ policy: data });
@@ -325,7 +325,7 @@ adminRouter.patch("/users", async (req: AuthenticatedRequest, res) => {
     .select()
     .single();
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   res.json({ user: data });
@@ -349,7 +349,7 @@ adminRouter.patch("/sellers", async (req, res) => {
     .select()
     .single();
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   if (data?.user_id) {
@@ -470,7 +470,7 @@ adminRouter.patch("/bookings/:id/status", async (req: AuthenticatedRequest, res)
     .select()
     .single();
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   await supabase.from("booking_status_logs").insert({
@@ -508,7 +508,7 @@ adminRouter.patch("/payouts", async (req: AuthenticatedRequest, res) => {
     .select()
     .single();
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   res.json({ payout: data });
@@ -583,7 +583,7 @@ adminRouter.post("/refunds", async (req: AuthenticatedRequest, res) => {
     .single();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 
@@ -625,7 +625,7 @@ adminRouter.patch("/disputes", async (req: AuthenticatedRequest, res) => {
     .single();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   res.json({ dispute: data });
@@ -641,7 +641,7 @@ adminRouter.get("/signed-proof", async (req, res) => {
   const supabase = getServiceSupabase();
   const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 120);
   if (error || !data) {
-    res.status(500).json({ error: error?.message || "Could not create signed URL." });
+    res.status(500).json({ error: "Could not create signed URL." });
     return;
   }
   res.redirect(data.signedUrl);

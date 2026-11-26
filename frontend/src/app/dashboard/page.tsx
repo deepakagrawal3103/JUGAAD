@@ -40,7 +40,7 @@ export default async function CustomerDashboardPage() {
   }
 
   // If local demo mode, supply rich sample bookings
-  if (bookings.length === 0) {
+  if (bookings.length === 0 && process.env.NODE_ENV !== "production") {
     const { MOCK_CUSTOMER_BOOKINGS } = await import("@/lib/data/mockDashboards");
     bookings = MOCK_CUSTOMER_BOOKINGS;
   }

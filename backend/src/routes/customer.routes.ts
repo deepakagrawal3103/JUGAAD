@@ -51,7 +51,7 @@ customerRouter.patch("/profile", requireAuth, async (req: AuthenticatedRequest, 
     .single();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   res.json({ profile: data });
@@ -67,7 +67,7 @@ customerRouter.get("/notifications", requireAuth, async (req: AuthenticatedReque
     .limit(50);
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   res.json({ notifications: data ?? [] });
@@ -124,7 +124,7 @@ customerRouter.post("/disputes", requireAuth, async (req: AuthenticatedRequest, 
     .single();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 

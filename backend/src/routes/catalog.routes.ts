@@ -157,7 +157,7 @@ catalogRouter.get("/products", async (req, res) => {
   const { data, count, error } = await query.range(from, to);
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 
@@ -290,7 +290,7 @@ catalogRouter.get("/availability", async (req, res) => {
   ]);
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
   if (!product) {

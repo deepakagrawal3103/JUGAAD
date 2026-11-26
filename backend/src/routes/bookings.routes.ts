@@ -28,8 +28,10 @@ bookingsRouter.post(
     });
 
     if (error) {
-      const status = error.message.toLowerCase().includes("unavailable") ? 409 : 400;
-      res.status(status).json({ error: error.message });
+      const unavailable = error.message.toLowerCase().includes("unavailable");
+      res.status(unavailable ? 409 : 400).json({
+        error: unavailable ? "Requested dates are unavailable." : "Could not create the reservation.",
+      });
       return;
     }
 
@@ -196,7 +198,7 @@ bookingsRouter.post("/:id/transition", requireAuth, async (req: AuthenticatedReq
 
   const { error } = await supabase.from("bookings").update(updateData).eq("id", bookingId);
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 
@@ -266,7 +268,7 @@ bookingsRouter.post("/:id/inspect", requireAuth, async (req: AuthenticatedReques
     .single();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Request could not be completed." });
     return;
   }
 

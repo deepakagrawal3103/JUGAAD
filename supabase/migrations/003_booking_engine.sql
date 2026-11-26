@@ -69,8 +69,6 @@ DECLARE
   v_blocked_count INT;
   v_reserved_count INT;
 BEGIN
-  PERFORM public.release_expired_reservations();
-
   IF p_end_date < p_start_date THEN
     RETURN jsonb_build_object('available', FALSE, 'reason', 'End date must be on or after start date.');
   END IF;
@@ -151,8 +149,6 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  PERFORM public.release_expired_reservations();
-
   RETURN QUERY
   SELECT bd.start_date, bd.end_date, 'BLOCKED'::TEXT
   FROM public.blocked_dates bd

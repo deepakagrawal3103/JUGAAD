@@ -6,11 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/dashboard";
+  const redirectTo = safeInternalRedirect(searchParams.get("redirect"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,6 +23,10 @@ function LoginForm() {
     setError(null);
     setLoading(true);
     try {
+      if (!isSupabaseConfigured() && process.env.NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH !== "true") {
+        setError("Account sign-in is not configured yet. Please try again later.");
+        return;
+      }
       if (!isSupabaseConfigured()) {
         const res = await fetch("/api/auth/demo-session", {
           method: "POST",
@@ -53,6 +58,10 @@ function LoginForm() {
     setError(null);
     setLoading(true);
     try {
+      if (!isSupabaseConfigured() && process.env.NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH !== "true") {
+        setError("Google sign-in is not configured yet. Please try again later.");
+        return;
+      }
       if (!isSupabaseConfigured()) {
         const res = await fetch("/api/auth/demo-session", {
           method: "POST",
@@ -121,22 +130,6 @@ function LoginForm() {
           </Link>
         </div>
 
-        {/* Customer Sample Credential */}
-        <div className="rounded-xl border border-[#E4DFD7] bg-[#FAF8F5] p-4 text-xs space-y-2.5">
-          <p className="font-semibold uppercase tracking-wider text-[#161616]">Sample Customer Login</p>
-          <div className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-[#E4DFD7] text-[#57534E]">
-            <div>
-              <span className="font-semibold text-[#161616]">Customer:</span> user@closetloop.in
-            </div>
-            <button
-              type="button"
-              onClick={() => { setEmail("user@closetloop.in"); setPassword("User@123456"); }}
-              className="text-[11px] font-medium text-[#161616] underline"
-            >
-              Auto-fill
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
