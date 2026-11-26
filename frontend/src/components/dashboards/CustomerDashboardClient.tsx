@@ -113,6 +113,7 @@ export function CustomerDashboardClient({
   };
 
   const handleLogout = async () => {
+    await fetch("/api/auth/demo-session", { method: "DELETE" }).catch(() => {});
     if (isSupabaseConfigured()) {
       const supabase = createClient();
       await supabase.auth.signOut();

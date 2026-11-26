@@ -71,14 +71,14 @@ export async function requireAuth(redirectTo = "/login"): Promise<AuthenticatedC
 }
 
 export async function requireSeller(): Promise<AuthenticatedContext> {
-  const ctx = await requireAuth("/login?redirect=/seller");
+  const ctx = await requireAuth("/seller/login?redirect=/seller");
   if (ctx.role !== "SELLER" && ctx.role !== "ADMIN") redirect("/seller/apply");
   if (!ctx.sellerProfileId && ctx.role !== "ADMIN") redirect("/seller/apply");
   return ctx;
 }
 
 export async function requireAdmin(): Promise<AuthenticatedContext> {
-  const ctx = await requireAuth("/login?redirect=/admin");
-  if (ctx.role !== "ADMIN") redirect("/");
+  const ctx = await requireAuth("/admin/login?redirect=/admin");
+  if (ctx.role !== "ADMIN") redirect("/admin/login?error=unauthorized");
   return ctx;
 }
