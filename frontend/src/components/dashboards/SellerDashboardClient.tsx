@@ -67,7 +67,7 @@ export function SellerDashboardClient({
   payouts: SellerPayoutRow[];
 }) {
   const router = useRouter();
-  const [section, setSection] = useState<"listings" | "bookings" | "earnings">("listings");
+  const [section, setSection] = useState<"listings" | "bookings">("listings");
   const [listingTab, setListingTab] = useState("ALL");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -160,7 +160,7 @@ export function SellerDashboardClient({
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
           <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Total / Live</p>
           <p className="font-editorial text-2xl font-semibold mt-1">
@@ -175,22 +175,14 @@ export function SellerDashboardClient({
           </p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Rental se Kamai</p>
-          <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums">{formatINR(totalRentRevenue)}</p>
-        </div>
-        <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Commission Kata</p>
-          <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums text-[#EB5E4C]">{formatINR(totalCommission)}</p>
-        </div>
-        <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Aapki Net Kamai</p>
-          <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums text-[#2F5D46]">{formatINR(netEarnings)}</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Kul Bookings</p>
+          <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums">{bookingItems.length}</p>
         </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E4DFD7] pb-4">
         <div className="flex gap-2">
-          {(["listings", "bookings", "earnings"] as const).map((s) => (
+          {(["listings", "bookings"] as const).map((s) => (
             <button
               key={s}
               type="button"
@@ -300,7 +292,6 @@ export function SellerDashboardClient({
                     <span className="font-mono-ref text-xs font-semibold mr-2">{bi.booking?.booking_reference}</span>
                     <Badge>{bi.booking?.status?.replace(/_/g, " ")}</Badge>
                   </div>
-                  <span className="text-xs font-semibold text-[#2F5D46] tabular-nums">Aapka Net: {formatINR(bi.seller_earnings)}</span>
                 </div>
                 <p className="font-semibold text-sm text-[#161616]">{bi.product_title_snapshot}</p>
                 <p className="text-xs text-[#57534E]">
@@ -368,46 +359,6 @@ export function SellerDashboardClient({
               </div>
             </form>
           )}
-        </div>
-      )}
-
-      {section === "earnings" && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-              <p className="text-xs uppercase tracking-wider text-[#8C857B]">Baaki Payouts</p>
-              <p className="font-editorial text-3xl font-semibold mt-1 tabular-nums">{formatINR(pendingPayouts)}</p>
-            </div>
-            <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-              <p className="text-xs uppercase tracking-wider text-[#8C857B]">Complete Payouts</p>
-              <p className="font-editorial text-3xl font-semibold mt-1 tabular-nums text-[#2F5D46]">{formatINR(completedPayouts)}</p>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-[#E4DFD7] bg-white overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
-                <tr>
-                  <th className="p-3">Product</th>
-                  <th className="p-3">Rental</th>
-                  <th className="p-3">Commission</th>
-                  <th className="p-3">Aapki Kamai</th>
-                  <th className="p-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E4DFD7] tabular-nums">
-                {bookingItems.map((bi) => (
-                  <tr key={bi.id}>
-                    <td className="p-3 font-medium">{bi.product_title_snapshot}</td>
-                    <td className="p-3">{formatINR(bi.rental_amount)}</td>
-                    <td className="p-3 text-[#EB5E4C]">{formatINR(bi.commission_amount)}</td>
-                    <td className="p-3 font-semibold text-[#2F5D46]">{formatINR(bi.seller_earnings)}</td>
-                    <td className="p-3">{bi.booking?.payment_status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </div>
       )}
     </div>

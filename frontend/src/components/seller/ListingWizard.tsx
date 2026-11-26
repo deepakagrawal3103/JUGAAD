@@ -439,9 +439,6 @@ export function ListingWizard({
               </div>
             </div>
 
-            <p className="text-xs text-[#2F5D46] font-medium tabular-nums">
-              At {commissionPercent}% platform commission, you earn {formatINR(estNet)}/day (0% deducted from deposit).
-            </p>
           </div>
         )}
 

@@ -92,7 +92,7 @@ export default async function SellerDashboardPage() {
       <div className="border-b border-[#E4DFD7] pb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[11px] uppercase tracking-[0.18em] text-[#8C857B]">Seller Studio</p>
-          <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Apna Closet &amp; Kamai</h1>
+          <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Apna Closet &amp; Bookings</h1>
         </div>
         <Link href="/dashboard" className="rounded-xl border border-[#E4DFD7] px-4 py-2 text-xs font-medium bg-white">
           Customer Dashboard
