@@ -48,7 +48,7 @@ function RegisterForm() {
         router.push(redirectTo);
         router.refresh();
       } else {
-        setMessage("Check your inbox to verify your email address, then sign in.");
+        setMessage("Apna inbox check karo — email verify karo, phir sign in karo.");
       }
     } finally {
       setLoading(false);
@@ -59,24 +59,24 @@ function RegisterForm() {
     <div className="max-w-md mx-auto px-4 py-16">
       <div className="rounded-2xl border border-[#E4DFD7] bg-white p-8 space-y-6">
         <div className="space-y-2">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-[#8C857B]">Join The Marketplace</p>
-          <h1 className="font-editorial text-3xl font-semibold text-[#161616]">Create Account</h1>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#8C857B]">Marketplace Mein Aao</p>
+          <h1 className="font-editorial text-3xl font-semibold text-[#161616]">Account Banao</h1>
         </div>
         {error && <div className="rounded-xl border border-[#E6C5C5] bg-[#FDF1F1] px-4 py-3 text-xs text-[#9E2A2B]">{error}</div>}
         {message && <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] px-4 py-3 text-xs text-[#2F5D46]">{message}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full Name" />
+          <Input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Poora Naam" />
           <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Address" />
           <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone Number (Optional)" />
-          <Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (min 8 chars)" />
+          <Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (kam se kam 8 chars)" />
           <Button type="submit" variant="accent" disabled={loading} className="w-full">
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading ? "Account Ban Raha Hai..." : "Account Banao"}
           </Button>
         </form>
         <div className="border-t border-[#E4DFD7] pt-5 text-sm text-[#57534E] text-center">
           Already have an account?{" "}
           <Link href="/login" className="font-semibold text-[#161616] underline">
-            Sign In
+            Sign In Karo
           </Link>
         </div>
       </div>

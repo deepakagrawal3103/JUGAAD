@@ -48,13 +48,13 @@ interface SellerPayoutRow {
 }
 
 const LISTING_TABS = [
-  { key: "ALL", label: "All Listings" },
+  { key: "ALL", label: "Sabhi Listings" },
   { key: "DRAFT", label: "Drafts" },
-  { key: "PENDING_REVIEW", label: "Pending Approval" },
-  { key: "CHANGES_REQUESTED", label: "Changes Requested" },
-  { key: "APPROVED", label: "Published" },
-  { key: "PAUSED", label: "Paused" },
-  { key: "REJECTED", label: "Rejected" },
+  { key: "PENDING_REVIEW", label: "Approval Baaki" },
+  { key: "CHANGES_REQUESTED", label: "Changes Maanga" },
+  { key: "APPROVED", label: "Live / Published" },
+  { key: "PAUSED", label: "Pause Kiya" },
+  { key: "REJECTED", label: "Reject Hua" },
 ];
 
 export function SellerDashboardClient({
@@ -162,28 +162,28 @@ export function SellerDashboardClient({
     <div className="space-y-8">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Total / Published</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Total / Live</p>
           <p className="font-editorial text-2xl font-semibold mt-1">
             {listings.length} / {listings.filter((l) => l.status === "APPROVED").length}
           </p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Pending / Rejected</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Baaki / Reject</p>
           <p className="font-editorial text-2xl font-semibold mt-1">
             {listings.filter((l) => l.status === "PENDING_REVIEW").length} /{" "}
             {listings.filter((l) => l.status === "REJECTED").length}
           </p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Rental Revenue</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Rental se Kamai</p>
           <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums">{formatINR(totalRentRevenue)}</p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Commission Deducted</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Commission Kata</p>
           <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums text-[#EB5E4C]">{formatINR(totalCommission)}</p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-4">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Net Seller Earnings</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Aapki Net Kamai</p>
           <p className="font-editorial text-2xl font-semibold mt-1 tabular-nums text-[#2F5D46]">{formatINR(netEarnings)}</p>
         </div>
       </div>
@@ -204,7 +204,7 @@ export function SellerDashboardClient({
           ))}
         </div>
         <Link href="/seller/listings/new" className="inline-flex items-center gap-2 rounded-xl bg-[#EB5E4C] text-white px-5 py-2.5 text-xs font-semibold">
-          <Plus className="h-4 w-4" /> New Listing
+          <Plus className="h-4 w-4" /> Naya Listing Daalo
         </Link>
       </div>
 
@@ -248,11 +248,11 @@ export function SellerDashboardClient({
                         </div>
                         <p className="font-semibold text-sm text-[#161616]">{item.title}</p>
                         <p className="text-xs text-[#57534E] tabular-nums">
-                          Rent: {formatINR(item.daily_price)}/day · Deposit: {formatINR(item.security_deposit)} · {item.rental_count} rentals
+                          Rent: {formatINR(item.daily_price)}/din · Deposit: {formatINR(item.security_deposit)} · {item.rental_count} baar rent hua
                         </p>
                         {item.admin_feedback && (
                           <p className="text-xs text-[#9A6B1E] bg-[#FCF7EC] px-2.5 py-1 rounded-lg border border-[#E8D5B5]">
-                            Admin Note: {item.admin_feedback}
+                            Admin ka Note: {item.admin_feedback}
                           </p>
                         )}
                       </div>
@@ -260,7 +260,7 @@ export function SellerDashboardClient({
 
                     <div className="flex flex-wrap gap-2">
                       <Link href={`/seller/listings/${item.id}/edit`} className="inline-flex items-center gap-1 rounded-xl border border-[#E4DFD7] px-3 py-1.5 text-xs hover:border-[#161616]">
-                        <Edit className="h-3.5 w-3.5" /> Edit
+                        <Edit className="h-3.5 w-3.5" /> Badlo
                       </Link>
                       {item.status === "APPROVED" && (
                         <Button size="sm" variant="subtle" disabled={busyId === item.id} onClick={() => toggleListingStatus(item.id, "PAUSED")}>
@@ -284,7 +284,7 @@ export function SellerDashboardClient({
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white p-12 text-center text-sm text-[#8C857B]">
-              No listings in this category yet.
+              Is category mein abhi koi listing nahi hai.
             </div>
           )}
         </div>
@@ -300,37 +300,37 @@ export function SellerDashboardClient({
                     <span className="font-mono-ref text-xs font-semibold mr-2">{bi.booking?.booking_reference}</span>
                     <Badge>{bi.booking?.status?.replace(/_/g, " ")}</Badge>
                   </div>
-                  <span className="text-xs font-semibold text-[#2F5D46] tabular-nums">Your Net: {formatINR(bi.seller_earnings)}</span>
+                  <span className="text-xs font-semibold text-[#2F5D46] tabular-nums">Aapka Net: {formatINR(bi.seller_earnings)}</span>
                 </div>
                 <p className="font-semibold text-sm text-[#161616]">{bi.product_title_snapshot}</p>
                 <p className="text-xs text-[#57534E]">
-                  {formatISTDate(bi.start_date)} – {formatISTDate(bi.end_date)} · Return Deadline: {formatISTDateTime(bi.return_deadline)}
+                  {formatISTDate(bi.start_date)} – {formatISTDate(bi.end_date)} · Wapsi ki Last Date: {formatISTDateTime(bi.return_deadline)}
                 </p>
 
                 <div className="flex flex-wrap gap-2 pt-1">
                   {bi.booking?.status === "CONFIRMED" && (
                     <>
                       <Button size="sm" variant="subtle" disabled={busyId === bi.booking_id} onClick={() => transitionBooking(bi.booking_id, "READY_FOR_PICKUP")}>
-                        Ready for Pickup
+                        Pickup ke Liye Ready
                       </Button>
                       <Button size="sm" variant="subtle" disabled={busyId === bi.booking_id} onClick={() => transitionBooking(bi.booking_id, "DISPATCHED")}>
-                        Dispatched
+                        Bhej Diya
                       </Button>
                     </>
                   )}
                   {["READY_FOR_PICKUP", "DISPATCHED"].includes(bi.booking?.status || "") && (
                     <Button size="sm" variant="accent" disabled={busyId === bi.booking_id} onClick={() => transitionBooking(bi.booking_id, "RENTAL_ACTIVE")}>
-                      Confirm Handover / Active
+                      Handover Confirm / Active Karo
                     </Button>
                   )}
                   {["RETURN_DUE", "RETURN_INITIATED"].includes(bi.booking?.status || "") && (
                     <Button size="sm" variant="accent" disabled={busyId === bi.booking_id} onClick={() => transitionBooking(bi.booking_id, "RETURNED")}>
-                      Confirm Product Received
+                      Product Mil Gaya Confirm Karo
                     </Button>
                   )}
                   {bi.booking?.status === "RETURNED" && (
                     <Button size="sm" variant="accent" onClick={() => setInspectBookingId(bi.booking_id)}>
-                      Record Return Inspection
+                      Return Inspection Likho
                     </Button>
                   )}
                 </div>
@@ -338,32 +338,32 @@ export function SellerDashboardClient({
             ))
           ) : (
             <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white p-12 text-center text-sm text-[#8C857B]">
-              No bookings for your listings yet.
+              Aapki listings par abhi koi booking nahi aayi.
             </div>
           )}
 
           {inspectBookingId && (
             <form onSubmit={submitInspection} className="rounded-2xl border border-[#161616] bg-white p-6 space-y-4">
-              <h3 className="font-editorial text-2xl font-semibold">Record Return Condition Inspection</h3>
+              <h3 className="font-editorial text-2xl font-semibold">Return Condition Jaanch</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <select value={conditionStatus} onChange={(e) => setConditionStatus(e.target.value)} className="h-11 rounded-xl border border-[#E4DFD7] px-3 text-sm">
-                  <option value="GOOD">Good / Clean Return</option>
-                  <option value="MINOR_WEAR">Minor Wear (No Deduction)</option>
-                  <option value="DAMAGED">Damaged</option>
-                  <option value="MISSING_ITEMS">Missing Accessories</option>
-                  <option value="LATE">Late Return</option>
+                  <option value="GOOD">Accha / Saaf Wapas Aaya</option>
+                  <option value="MINOR_WEAR">Thoda Use Hua (No Deduction)</option>
+                  <option value="DAMAGED">Damaged / Kharab</option>
+                  <option value="MISSING_ITEMS">Accessories Missing</option>
+                  <option value="LATE">Late Return Hua</option>
                 </select>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={damageFound} onChange={(e) => setDamageFound(e.target.checked)} className="h-4 w-4" />
-                  Damage / Issue Requires Deposit Review
+                  Damage / Issue Hai — Deposit Review Chahiye
                 </label>
               </div>
               {damageFound && (
-                <input type="number" min={0} value={deductionRec} onChange={(e) => setDeductionRec(e.target.value)} placeholder="Recommended deduction (₹)" className="h-11 w-full rounded-xl border border-[#E4DFD7] px-3 text-sm" />
+                <input type="number" min={0} value={deductionRec} onChange={(e) => setDeductionRec(e.target.value)} placeholder="Kitna kaatna chahiye (₹)" className="h-11 w-full rounded-xl border border-[#E4DFD7] px-3 text-sm" />
               )}
-              <textarea value={inspectNotes} onChange={(e) => setInspectNotes(e.target.value)} placeholder="Inspection notes..." className="w-full min-h-[80px] rounded-xl border border-[#E4DFD7] p-3 text-sm" />
+              <textarea value={inspectNotes} onChange={(e) => setInspectNotes(e.target.value)} placeholder="Inspection notes likho..." className="w-full min-h-[80px] rounded-xl border border-[#E4DFD7] p-3 text-sm" />
               <div className="flex gap-3">
-                <Button type="submit" variant="accent" disabled={busyId === inspectBookingId}>Save Inspection</Button>
+                <Button type="submit" variant="accent" disabled={busyId === inspectBookingId}>Inspection Save Karo</Button>
                 <Button type="button" variant="subtle" onClick={() => setInspectBookingId(null)}>Cancel</Button>
               </div>
             </form>
@@ -375,11 +375,11 @@ export function SellerDashboardClient({
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-              <p className="text-xs uppercase tracking-wider text-[#8C857B]">Pending Payouts</p>
+              <p className="text-xs uppercase tracking-wider text-[#8C857B]">Baaki Payouts</p>
               <p className="font-editorial text-3xl font-semibold mt-1 tabular-nums">{formatINR(pendingPayouts)}</p>
             </div>
             <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-              <p className="text-xs uppercase tracking-wider text-[#8C857B]">Completed Payouts</p>
+              <p className="text-xs uppercase tracking-wider text-[#8C857B]">Complete Payouts</p>
               <p className="font-editorial text-3xl font-semibold mt-1 tabular-nums text-[#2F5D46]">{formatINR(completedPayouts)}</p>
             </div>
           </div>
@@ -388,10 +388,10 @@ export function SellerDashboardClient({
             <table className="w-full text-left text-xs">
               <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
                 <tr>
-                  <th className="p-3">Item</th>
+                  <th className="p-3">Product</th>
                   <th className="p-3">Rental</th>
                   <th className="p-3">Commission</th>
-                  <th className="p-3">Seller Earnings</th>
+                  <th className="p-3">Aapki Kamai</th>
                   <th className="p-3">Status</th>
                 </tr>
               </thead>

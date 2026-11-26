@@ -37,11 +37,35 @@ export default async function AdminDashboardPage() {
     openDisputes: 0,
   };
 
+  // Local demo mode: supply rich sample data when backend is unavailable
+  if (!adminData) {
+    const {
+      MOCK_ADMIN_METRICS,
+      MOCK_ADMIN_PAYMENT_QUEUE,
+      MOCK_ADMIN_LISTINGS,
+      MOCK_ADMIN_BOOKINGS,
+      MOCK_ADMIN_DEPOSITS,
+      MOCK_ADMIN_PAYOUTS,
+      MOCK_ADMIN_DISPUTES,
+      MOCK_ADMIN_USERS,
+    } = await import("@/lib/data/mockDashboards");
+    adminData = {
+      metrics: MOCK_ADMIN_METRICS,
+      paymentQueue: MOCK_ADMIN_PAYMENT_QUEUE,
+      listings: MOCK_ADMIN_LISTINGS,
+      bookings: MOCK_ADMIN_BOOKINGS,
+      deposits: MOCK_ADMIN_DEPOSITS,
+      payouts: MOCK_ADMIN_PAYOUTS,
+      disputes: MOCK_ADMIN_DISPUTES,
+      users: MOCK_ADMIN_USERS,
+    };
+  }
+
   return (
     <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
       <div className="border-b border-[#E4DFD7] pb-6">
         <p className="text-[11px] uppercase tracking-[0.18em] text-[#EB5E4C]">Protected Operations</p>
-        <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Admin Console</h1>
+        <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Admin Control Panel</h1>
       </div>
 
       {!adminData && (

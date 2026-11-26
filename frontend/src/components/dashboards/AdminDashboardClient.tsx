@@ -284,9 +284,9 @@ export function AdminDashboardClient({
 
   const TABS: { key: AdminTab; label: string }[] = [
     { key: "overview", label: "Overview" },
-    { key: "listings", label: `Listings (${metrics.pendingListings})` },
-    { key: "payments", label: `Payments (${metrics.paymentPendingCount})` },
-    { key: "bookings", label: "Bookings" },
+    { key: "listings", label: `Listings (${metrics.pendingListings} Baaki)` },
+    { key: "payments", label: `Payments (${metrics.paymentPendingCount} Baaki)` },
+    { key: "bookings", label: "Sabhi Bookings" },
     { key: "deposits", label: "Deposits & Refunds" },
     { key: "payouts", label: "Seller Payouts" },
     { key: "disputes", label: `Disputes (${metrics.openDisputes})` },
@@ -320,18 +320,18 @@ export function AdminDashboardClient({
           {[
             { label: "Total Users", val: metrics.totalUsers },
             { label: "Total Sellers", val: metrics.totalSellers },
-            { label: "Active Listings", val: metrics.activeListings },
-            { label: "Pending Listings", val: metrics.pendingListings },
-            { label: "Total Bookings", val: metrics.totalBookings },
-            { label: "Confirmed Bookings", val: metrics.confirmedBookings },
-            { label: "Active Rentals", val: metrics.activeRentals },
+            { label: "Live Listings", val: metrics.activeListings },
+            { label: "Approval Baaki", val: metrics.pendingListings },
+            { label: "Kul Bookings", val: metrics.totalBookings },
+            { label: "Confirm Bookings", val: metrics.confirmedBookings },
+            { label: "Abhi Rent Par", val: metrics.activeRentals },
             { label: "Payment Queue", val: metrics.paymentPendingCount },
             { label: "Rental Volume", val: formatINR(metrics.rentalVolume) },
-            { label: "Platform Commission", val: formatINR(metrics.platformCommission) },
-            { label: "Seller Earnings", val: formatINR(metrics.sellerEarnings) },
-            { label: "Deposits Held", val: formatINR(metrics.depositsHeld) },
-            { label: "Refunds Pending", val: metrics.refundsPending },
-            { label: "Returns Pending", val: metrics.returnsPending },
+            { label: "Platform Kamai", val: formatINR(metrics.platformCommission) },
+            { label: "Seller Kamai", val: formatINR(metrics.sellerEarnings) },
+            { label: "Deposit Jama", val: formatINR(metrics.depositsHeld) },
+            { label: "Refund Baaki", val: metrics.refundsPending },
+            { label: "Return Baaki", val: metrics.returnsPending },
             { label: "Open Disputes", val: metrics.openDisputes },
           ].map((m) => (
             <div key={m.label} className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
@@ -368,21 +368,21 @@ export function AdminDashboardClient({
                   <Input
                     value={reviewNotes[item.id] || ""}
                     onChange={(e) => setReviewNotes({ ...reviewNotes, [item.id]: e.target.value })}
-                    placeholder="Admin review note..."
+                    placeholder="Admin review note likho..."
                     className="flex-1"
                   />
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="accent" disabled={busy} onClick={() => handleListingAction(item.id, "APPROVED")}>
-                      <Check className="h-3.5 w-3.5" /> Approve
+                      <Check className="h-3.5 w-3.5" /> Approve Karo
                     </Button>
                     <Button size="sm" variant="subtle" disabled={busy} onClick={() => handleListingAction(item.id, "CHANGES_REQUESTED")}>
-                      <MessageSquare className="h-3.5 w-3.5" /> Changes
+                      <MessageSquare className="h-3.5 w-3.5" /> Changes Maango
                     </Button>
                     <Button size="sm" variant="destructive" disabled={busy} onClick={() => handleListingAction(item.id, "REJECTED")}>
-                      <X className="h-3.5 w-3.5" /> Reject
+                      <X className="h-3.5 w-3.5" /> Reject Karo
                     </Button>
                     <Button size="sm" variant="subtle" disabled={busy} onClick={() => handleListingAction(item.id, "UNPUBLISHED")}>
-                      Unpublish
+                      Hatao (Unpublish)
                     </Button>
                   </div>
                 </div>
@@ -396,7 +396,7 @@ export function AdminDashboardClient({
         <div className="space-y-4">
           {paymentQueue.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white p-12 text-center text-sm text-[#8C857B]">
-              No payment proofs submitted yet.
+              Abhi koi payment proof submit nahi hua hai.
             </div>
           ) : (
             paymentQueue.map((proof) => (
@@ -435,13 +435,13 @@ export function AdminDashboardClient({
                     />
                     <div className="flex gap-2">
                       <Button size="sm" variant="accent" disabled={busy} onClick={() => handlePaymentDecision(proof.booking_id, "VERIFIED")}>
-                        Verify Payment
+                        Payment Verify Karo
                       </Button>
                       <Button size="sm" variant="subtle" disabled={busy} onClick={() => handlePaymentDecision(proof.booking_id, "MORE_PROOF_REQUESTED")}>
-                        Request Proof
+                        Aur Proof Maango
                       </Button>
                       <Button size="sm" variant="destructive" disabled={busy} onClick={() => handlePaymentDecision(proof.booking_id, "REJECTED")}>
-                        Reject
+                        Reject Karo
                       </Button>
                     </div>
                   </div>

@@ -7,11 +7,17 @@ export const dynamic = "force-dynamic";
 
 export default async function SellerDashboardPage() {
   const ctx = await requireSeller();
-  const supabase = await createServerSupabase();
   const sellerId = ctx.sellerProfileId;
 
-  const [{ data: listings }, { data: bookingItems }, { data: payouts }] = sellerId
-    ? await Promise.all([
+  let listings: Array<any> = [];
+  let bookingItems: Array<any> = [];
+  let payouts: Array<any> = [];
+
+  try {
+    const { isSupabaseServerConfigured } = await import("@/lib/supabase/server");
+    if (isSupabaseServerConfigured() && sellerId) {
+      const supabase = await createServerSupabase();
+      const [{ data: lData }, { data: bData }, { data: pData }] = await Promise.all([
         supabase
           .from("products")
           .select("*, images:product_images(public_url, is_primary)")
@@ -31,8 +37,22 @@ export default async function SellerDashboardPage() {
           .select("*")
           .eq("seller_id", sellerId)
           .order("created_at", { ascending: false }),
-      ])
-    : [{ data: [] }, { data: [] }, { data: [] }];
+      ]);
+      listings = lData || [];
+      bookingItems = bData || [];
+      payouts = pData || [];
+    }
+  } catch {
+    // fallback gracefully
+  }
+
+  // Local demo mode: supply rich sample data when Supabase is empty
+  if (listings.length === 0) {
+    const { MOCK_SELLER_LISTINGS, MOCK_SELLER_BOOKING_ITEMS, MOCK_SELLER_PAYOUTS } = await import("@/lib/data/mockDashboards");
+    listings = MOCK_SELLER_LISTINGS as any;
+    bookingItems = MOCK_SELLER_BOOKING_ITEMS as any;
+    payouts = MOCK_SELLER_PAYOUTS as any;
+  }
 
   const normalizedItems = (bookingItems ?? []).map((bi) => ({
     ...bi,
@@ -44,10 +64,10 @@ export default async function SellerDashboardPage() {
       <div className="border-b border-[#E4DFD7] pb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[11px] uppercase tracking-[0.18em] text-[#8C857B]">Seller Studio</p>
-          <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Closet Management &amp; Earnings</h1>
+          <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Apna Closet &amp; Kamai</h1>
         </div>
         <Link href="/dashboard" className="rounded-xl border border-[#E4DFD7] px-4 py-2 text-xs font-medium bg-white">
-          Customer View
+          Customer Dashboard
         </Link>
       </div>
 

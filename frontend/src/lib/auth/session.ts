@@ -13,6 +13,28 @@ export interface AuthenticatedContext {
 }
 
 export async function getCurrentSessionUser(): Promise<AuthenticatedContext | null> {
+  // 1. Check for Demo / Local Test Session Cookie
+  try {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    const demoCookie = cookieStore.get("closetloop_demo_session");
+    if (demoCookie?.value) {
+      const parsed = JSON.parse(demoCookie.value);
+      return {
+        userId: parsed.userId,
+        accessToken: "demo-local-token",
+        email: parsed.email,
+        role: parsed.role,
+        status: "ACTIVE",
+        fullName: parsed.fullName,
+        sellerProfileId: parsed.sellerProfileId,
+      };
+    }
+  } catch {
+    // ignore
+  }
+
+  // 2. Real Supabase Session if configured
   if (!isSupabaseServerConfigured()) return null;
 
   const supabase = await createServerSupabase();

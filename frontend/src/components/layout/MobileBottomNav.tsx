@@ -28,13 +28,6 @@ export function MobileBottomNav() {
           <span>Categories</span>
         </Link>
 
-        <Link href="/seller/listings/new" className="flex flex-col items-center gap-0.5 -mt-4">
-          <span className="h-11 w-11 rounded-full bg-[#EB5E4C] text-white flex items-center justify-center shadow-sm border-2 border-[#FAF8F5]">
-            <Plus className="h-5 w-5" />
-          </span>
-          <span className="text-[#161616] font-medium">Rent Out</span>
-        </Link>
-
         <Link
           href="/wishlist"
           className={`flex flex-col items-center gap-0.5 py-1 ${
@@ -46,13 +39,23 @@ export function MobileBottomNav() {
         </Link>
 
         <Link
-          href="/dashboard/notifications"
+          href="/cart"
+          className={`flex flex-col items-center gap-0.5 py-1 ${
+            pathname.startsWith("/cart") ? "text-[#EB5E4C] font-semibold" : "text-[#57534E]"
+          }`}
+        >
+          <Plus className="h-5 w-5 rotate-45" />
+          <span>Bag</span>
+        </Link>
+
+        <Link
+          href="/dashboard"
           className={`flex flex-col items-center gap-0.5 py-1 ${
             pathname.startsWith("/dashboard") ? "text-[#EB5E4C] font-semibold" : "text-[#57534E]"
           }`}
         >
           <Inbox className="h-5 w-5" />
-          <span>Inbox</span>
+          <span>Meri Bookings</span>
         </Link>
       </div>
     </nav>

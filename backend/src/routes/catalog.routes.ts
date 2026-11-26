@@ -45,6 +45,20 @@ catalogRouter.get("/shell", async (_req, res) => {
   });
 });
 
+catalogRouter.get("/categories", async (_req, res) => {
+  if (!isSupabaseConfigured()) {
+    res.json({ categories: [] });
+    return;
+  }
+  const supabase = getServiceSupabase();
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("is_active", true)
+    .order("display_order");
+  res.json({ categories: categories ?? [] });
+});
+
 catalogRouter.get("/products", async (req, res) => {
   if (!isSupabaseConfigured()) {
     res.json({ items: [], total: 0, page: 1, totalPages: 1 });

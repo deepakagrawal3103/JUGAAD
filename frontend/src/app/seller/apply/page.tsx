@@ -52,9 +52,9 @@ export default function SellerApplyPage() {
     <div className="max-w-2xl mx-auto px-4 py-12 space-y-8">
       <div className="border-b border-[#E4DFD7] pb-6 space-y-2">
         <p className="text-[11px] uppercase tracking-[0.18em] text-[#EB5E4C]">Seller Onboarding</p>
-        <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Open Your Rental Closet</h1>
+        <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Apna Rental Closet Kholo</h1>
         <p className="text-sm text-[#57534E]">
-          Set up your public closet profile and private payout details. Your pickup address and contact details are never exposed on public product pages.
+          Apna public closet profile aur private payout details set karo. Aapka pickup address aur contact details kabhi bhi public product pages par nahi dikhenge.
         </p>
       </div>
 
@@ -63,20 +63,20 @@ export default function SellerApplyPage() {
       )}
 
       <form onSubmit={handleSubmit} className="rounded-2xl border border-[#E4DFD7] bg-white p-6 sm:p-8 space-y-5">
-        <Input required value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })} placeholder="Public Closet / Boutique Name *" />
+        <Input required value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })} placeholder="Public Closet / Boutique Naam *" />
         <Textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Closet Bio (Optional)" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="City *" />
+          <Input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Sheher *" />
           <Input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} placeholder="State" />
           <Input value={form.locality} onChange={(e) => setForm({ ...form, locality: e.target.value })} placeholder="Locality" />
         </div>
-        <Textarea required value={form.pickup_address} onChange={(e) => setForm({ ...form, pickup_address: e.target.value })} placeholder="Private Pickup Address * (shared only on confirmed pickup bookings)" />
+        <Textarea required value={form.pickup_address} onChange={(e) => setForm({ ...form, pickup_address: e.target.value })} placeholder="Private Pickup Address * (sirf confirmed pickup bookings par share hoga)" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#E4DFD7] pt-5">
           <Input required value={form.payout_upi_id} onChange={(e) => setForm({ ...form, payout_upi_id: e.target.value })} placeholder="Payout UPI ID *" />
-          <Input required value={form.payout_account_name} onChange={(e) => setForm({ ...form, payout_account_name: e.target.value })} placeholder="Account Holder Name *" />
+          <Input required value={form.payout_account_name} onChange={(e) => setForm({ ...form, payout_account_name: e.target.value })} placeholder="Account Holder ka Naam *" />
         </div>
         <Button type="submit" variant="accent" size="lg" disabled={loading} className="w-full">
-          {loading ? "Saving..." : "Activate Seller Studio & Create Listing"}
+          {loading ? "Save ho raha hai..." : "Seller Studio Activate Karo & Listing Banao"}
         </Button>
       </form>
     </div>

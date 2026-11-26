@@ -47,7 +47,7 @@ export function SiteHeader({ brandName, categories, user, counts }: SiteHeaderPr
   return (
     <header className="sticky top-0 z-40 border-b border-[#E4DFD7] bg-[#FAF8F5]/95 backdrop-blur-sm">
       <div className="border-b border-[#E4DFD7] bg-[#161616] text-[#FAF8F5] text-[11px] tracking-[0.08em] uppercase py-1.5 px-4 text-center">
-        Dry-Cleaned &amp; Verified Peer Closets · Transparent Refundable Deposits · IST Scheduling
+        Dry-Cleaned &amp; Verified Kapde · 100% Refundable Security Deposit · Instant Booking
       </div>
 
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,14 +116,6 @@ export function SiteHeader({ brandName, categories, user, counts }: SiteHeaderPr
                 ))}
               </div>
             </div>
-            <Link href="/seller/apply" className="text-[#161616] hover:text-[#EB5E4C] transition-colors font-medium">
-              List Your Outfit
-            </Link>
-            {user?.role === "ADMIN" && (
-              <Link href="/admin" className="text-[#EB5E4C] hover:text-[#161616] transition-colors font-semibold">
-                Admin
-              </Link>
-            )}
           </nav>
 
           {/* Desktop Rounded Search */}
@@ -228,17 +220,9 @@ export function SiteHeader({ brandName, categories, user, counts }: SiteHeaderPr
               <Link href="/browse" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium">
                 Explore Rentals
               </Link>
-              <Link href="/seller" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium">
-                Seller Studio
-              </Link>
               <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium">
                 My Rentals
               </Link>
-              {user?.role === "ADMIN" && (
-                <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="py-2 font-semibold text-[#EB5E4C]">
-                  Admin Console
-                </Link>
-              )}
             </div>
             <div className="pt-2 border-t border-[#E4DFD7]">
               <p className="text-[11px] uppercase tracking-widest text-[#8C857B] mb-2">Categories</p>

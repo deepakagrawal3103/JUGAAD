@@ -49,14 +49,14 @@ interface UserProfileData {
 }
 
 const TABS = [
-  { key: "all", label: "Overview" },
-  { key: "payment_pending", label: "Payment Pending" },
+  { key: "all", label: "Sabhi Bookings" },
+  { key: "payment_pending", label: "Payment Baaki" },
   { key: "verification", label: "Verification" },
-  { key: "upcoming", label: "Confirmed / Upcoming" },
-  { key: "active", label: "Current Rentals" },
-  { key: "returns", label: "Returns & Deposits" },
-  { key: "completed", label: "Completed" },
-  { key: "cancelled", label: "Cancelled" },
+  { key: "upcoming", label: "Upcoming / Confirm" },
+  { key: "active", label: "Abhi Rent Par" },
+  { key: "returns", label: "Return & Deposit" },
+  { key: "completed", label: "Complete" },
+  { key: "cancelled", label: "Cancel" },
   { key: "profile", label: "Profile Settings" },
 ];
 
@@ -106,7 +106,7 @@ export function CustomerDashboardClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profileForm),
       });
-      setProfileMsg(res.ok ? "Profile updated successfully." : "Failed to update profile.");
+      setProfileMsg(res.ok ? "Profile update ho gaya." : "Profile update nahi ho paya.");
     } finally {
       setSavingProfile(false);
     }
@@ -125,17 +125,17 @@ export function CustomerDashboardClient({
     <div className="space-y-8">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Total Bookings</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Kul Bookings</p>
           <p className="font-editorial text-3xl font-semibold mt-1">{bookings.length}</p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Active / Upcoming</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Active / Aane Waali</p>
           <p className="font-editorial text-3xl font-semibold mt-1">
             {bookings.filter((b) => ["CONFIRMED", "READY_FOR_PICKUP", "DISPATCHED", "RENTAL_ACTIVE"].includes(b.status)).length}
           </p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Deposits Held</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Deposit Jama</p>
           <p className="font-editorial text-3xl font-semibold mt-1 tabular-nums">
             {formatINR(bookings.reduce((sum, b) => sum + Number(b.security_deposit?.amount_held || 0), 0))}
           </p>
@@ -147,7 +147,7 @@ export function CustomerDashboardClient({
             onClick={handleLogout}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-[#9E2A2B] hover:underline"
           >
-            <LogOut className="h-3.5 w-3.5" /> Sign Out
+            <LogOut className="h-3.5 w-3.5" /> Log Out
           </button>
         </div>
       </div>
@@ -168,14 +168,14 @@ export function CustomerDashboardClient({
           </button>
         ))}
         <Link href="/wishlist" className="rounded-full px-4 py-1.5 text-xs font-medium border border-[#E4DFD7] bg-[#F3EFEA] text-[#161616]">
-          Wishlist →
+          Meri Wishlist →
         </Link>
       </div>
 
       {tab === "profile" ? (
         <form onSubmit={saveProfile} className="rounded-2xl border border-[#E4DFD7] bg-white p-6 max-w-2xl space-y-4">
           <h2 className="font-editorial text-2xl font-semibold">Profile Settings</h2>
-          <p className="text-xs text-[#8C857B]">Signed in as {email}</p>
+          <p className="text-xs text-[#8C857B]">{email} se login hai</p>
           {profileMsg && (
             <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] p-3 text-xs text-[#2F5D46]">
               {profileMsg}
@@ -187,9 +187,9 @@ export function CustomerDashboardClient({
             <Input value={profileForm.city} onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })} placeholder="City" />
             <Input value={profileForm.preferred_size} onChange={(e) => setProfileForm({ ...profileForm, preferred_size: e.target.value })} placeholder="Preferred Size" />
           </div>
-          <Input value={profileForm.address_line} onChange={(e) => setProfileForm({ ...profileForm, address_line: e.target.value })} placeholder="Default Delivery Address" />
+          <Input value={profileForm.address_line} onChange={(e) => setProfileForm({ ...profileForm, address_line: e.target.value })} placeholder="Delivery Address" />
           <Button type="submit" variant="accent" disabled={savingProfile}>
-            {savingProfile ? "Saving..." : "Save Profile"}
+            {savingProfile ? "Save ho raha hai..." : "Profile Save Karo"}
           </Button>
         </form>
       ) : filtered.length > 0 ? (
@@ -230,17 +230,17 @@ export function CustomerDashboardClient({
                     </div>
                     <p className="font-semibold text-sm text-[#161616]">
                       {firstItem?.product_title_snapshot}
-                      {booking.items.length > 1 ? ` + ${booking.items.length - 1} more` : ""}
+                      {booking.items.length > 1 ? ` + ${booking.items.length - 1} aur` : ""}
                     </p>
                     {firstItem && (
                       <p className="text-xs text-[#57534E]">
-                        {formatISTDate(firstItem.start_date)} – {formatISTDate(firstItem.end_date)} · Return by{" "}
+                        {formatISTDate(firstItem.start_date)} – {formatISTDate(firstItem.end_date)} · Wapsi tak:{" "}
                         {formatISTDateTime(firstItem.return_deadline)}
                       </p>
                     )}
                     {countdown && (
                       <p className="text-xs text-[#EB5E4C] font-medium flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" /> Return Countdown: {countdown.label}
+                        <Clock className="h-3.5 w-3.5" /> Wapsi ka Time: {countdown.label}
                       </p>
                     )}
                   </div>
@@ -259,11 +259,11 @@ export function CustomerDashboardClient({
                   <div className="flex gap-2">
                     {booking.status === "AWAITING_PAYMENT" && (
                       <Link href={`/checkout/${booking.id}`} className="rounded-xl bg-[#EB5E4C] text-white px-4 py-2 text-xs font-medium">
-                        Pay Now
+                        Abhi Pay Karo
                       </Link>
                     )}
                     <Link href={`/dashboard/bookings/${booking.id}`} className="rounded-xl border border-[#161616] px-4 py-2 text-xs font-medium hover:bg-[#161616] hover:text-white transition-colors">
-                      View Details
+                      Details Dekho
                     </Link>
                   </div>
                 </div>
@@ -273,9 +273,9 @@ export function CustomerDashboardClient({
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white p-12 text-center space-y-3">
-          <p className="font-editorial text-2xl text-[#161616]">No bookings in this view</p>
+          <p className="font-editorial text-2xl text-[#161616]">Is view mein koi booking nahi hai</p>
           <Link href="/browse" className="inline-block rounded-xl border border-[#161616] px-5 py-2 text-xs font-medium">
-            Explore Rentals
+            Rentals Explore Karo
           </Link>
         </div>
       )}

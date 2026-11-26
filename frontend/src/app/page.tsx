@@ -19,7 +19,7 @@ function EmptyCollectionState({
     <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white px-6 py-12 text-center space-y-3">
       <p className="font-editorial text-2xl text-[#161616]">{title}</p>
       <p className="text-sm text-[#57534E] max-w-md mx-auto">
-        No approved listings have been published in this collection yet. Be the first closet owner to submit a look for curation.
+        Abhi tak is collection me koi approved listing nahi hai. Sabse pehle apna outfit list karo aur earn karna start karo.
       </p>
       <div className="pt-2">
         <Link
@@ -53,24 +53,23 @@ export default async function HomePage() {
               Peer-to-Peer Luxury &amp; Occasion Rental
             </span>
             <h1 className="font-editorial text-4xl sm:text-6xl font-semibold tracking-tight text-[#161616] leading-[1.06]">
-              {heroBanner?.title || shell.settings.brand_tagline}
+              Aapka Agla Look, Kharidna Zaroori Nahi!
             </h1>
             <p className="text-base sm:text-lg text-[#57534E] max-w-xl leading-relaxed">
-              {heroBanner?.subtitle ||
-                `Rent curated lehengas, sarees, tailored blazers, and statement silhouettes directly from verified wardrobes on ${shell.settings.brand_name}.`}
+              Designer lehengas, banarasi sarees, stylish blazers aur occasionwear rent karo direct verified wardrobes se. Rent pe lo, pehno aur wapas return karo bina kisi jhanjhat ke.
             </p>
             <div className="flex flex-wrap items-center gap-3.5 pt-2">
               <Link
-                href={heroBanner?.cta_href || "/browse"}
+                href="/browse"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#EB5E4C] text-white px-7 py-3.5 text-xs font-semibold uppercase tracking-[0.12em] hover:bg-[#D94E3D] transition-colors"
               >
-                {heroBanner?.cta_label || "Explore Rentals"} <ArrowRight className="h-4 w-4" />
+                Explore Outfits <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/seller/apply"
                 className="inline-flex items-center gap-2 rounded-xl border border-[#161616] bg-white text-[#161616] px-7 py-3.5 text-xs font-semibold uppercase tracking-[0.12em] hover:bg-[#161616] hover:text-white transition-colors"
               >
-                List Your Outfit
+                Apna Outfit List Karo
               </Link>
             </div>
           </div>
@@ -79,7 +78,7 @@ export default async function HomePage() {
             <div className="rounded-2xl border border-[#E4DFD7] bg-white p-6 sm:p-8 space-y-5 shadow-xs">
               <div className="border-b border-[#E4DFD7] pb-4 flex items-center justify-between">
                 <span className="text-[11px] uppercase tracking-[0.16em] text-[#8C857B]">
-                  100% Transparent Model
+                  100% Transparent Pricing
                 </span>
                 <span className="rounded-full bg-[#EDF5F0] px-2.5 py-0.5 text-[11px] text-[#2F5D46] font-semibold">
                   Admin Verified
@@ -87,20 +86,20 @@ export default async function HomePage() {
               </div>
               <div className="space-y-3.5 text-sm">
                 <div className="flex justify-between items-baseline">
-                  <span className="text-[#57534E]">Example Daily Rental</span>
+                  <span className="text-[#57534E]">Per Day Rental Example</span>
                   <span className="font-semibold tabular-nums">₹1,000 / day</span>
                 </div>
                 <div className="flex justify-between items-baseline">
                   <span className="text-[#57534E]">Refundable Security Deposit</span>
-                  <span className="font-semibold tabular-nums">₹500 (0% fee)</span>
+                  <span className="font-semibold tabular-nums">₹500 (100% Wapas)</span>
                 </div>
                 <div className="flex justify-between items-baseline border-t border-[#E4DFD7] pt-3">
-                  <span className="text-[#57534E]">Closet Owner Receives</span>
-                  <span className="font-semibold text-[#2F5D46] tabular-nums">{sellerShare}% of rent</span>
+                  <span className="text-[#57534E]">Lender / Seller Ki Kamai</span>
+                  <span className="font-semibold text-[#2F5D46] tabular-nums">{sellerShare}% Rent</span>
                 </div>
               </div>
               <p className="text-xs text-[#8C857B] leading-relaxed">
-                Every listing is reviewed before publication. Dates are atomically locked during checkout to prevent double-booking.
+                Har ek listing pehle admin review karti hai. Dates checkout par instant lock ho jaate hain taaki double-booking na ho sake.
               </p>
             </div>
           </div>
@@ -200,18 +199,18 @@ export default async function HomePage() {
       {/* HOW IT WORKS */}
       <section className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-[#EB5E4C]">Seamless Circularity</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#EB5E4C]">Easy &amp; Safe Process</p>
           <h2 className="font-editorial text-3xl sm:text-4xl font-semibold text-[#161616]">
-            How {shell.settings.brand_name} Works
+            ClosetLoop Kaise Kaam Karta Hai?
           </h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
-            { step: "01", icon: CalendarCheck, title: "Select Verified Dates", body: "Verify real-time calendar availability and lock dates with an instant reservation hold." },
-            { step: "02", icon: ShieldCheck, title: "Pay via UPI & Verify", body: "Complete UPI payment, submit your UTR reference, and receive verified confirmation." },
-            { step: "03", icon: Sparkles, title: "Wear With Confidence", body: "Pick up locally or opt for seller delivery. Enjoy designer pieces for a fraction of retail." },
-            { step: "04", icon: RefreshCw, title: "Return & Deposit Refund", body: "Return by your deadline. Once inspection clears, your security deposit is refunded." },
+            { step: "01", icon: CalendarCheck, title: "Dates Choose Karo", body: "Apne event ke hisaab se rental dates select karo aur available slot reserve karo." },
+            { step: "02", icon: ShieldCheck, title: "UPI Se Pay Karo", body: "Scan karke UPI payment karo aur UTR screenshot upload karke instant verify karwao." },
+            { step: "03", icon: Sparkles, title: "Pehno Aur Flaunt Karo", body: "Direct lender se pickup ya door delivery lo. Designer outfit pehno aur event enjoy karo!" },
+            { step: "04", icon: RefreshCw, title: "Wapas Karo, Deposit Pao", body: "Return deadline par garment wapas handover karo aur apna pura security deposit wapas pao." },
           ].map((item) => (
             <div key={item.step} className="rounded-2xl border border-[#E4DFD7] bg-white p-6 space-y-3">
               <div className="flex items-center justify-between">
@@ -250,12 +249,12 @@ export default async function HomePage() {
       <section className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-[#161616] text-[#FAF8F5] p-8 sm:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-4">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#EB5E4C]">Monetize Your Wardrobe</p>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-[#EB5E4C]">Apni Almirah Se Kamai Karo</p>
             <h2 className="font-editorial text-3xl sm:text-5xl font-semibold leading-tight">
-              Turn unworn occasionwear into recurring income.
+              Wardrobe me rakhe party wear ko banao regular income.
             </h2>
             <p className="text-sm sm:text-base text-[#D6CFC5] max-w-2xl leading-relaxed">
-              Earn {sellerShare}% of every rental while refundable security deposits protect your garments.
+              Har rental par pao {sellerShare}% direct kamai. Aur 100% security deposit protection aapke kapdon ko rakhega safe.
             </p>
           </div>
           <div className="lg:col-span-4 flex lg:justify-end">
@@ -263,7 +262,7 @@ export default async function HomePage() {
               href="/seller/apply"
               className="inline-flex items-center gap-2 rounded-xl bg-[#EB5E4C] text-white px-7 py-4 text-xs font-semibold uppercase tracking-[0.12em] hover:bg-[#D94E3D] transition-colors"
             >
-              Become a Seller <ArrowRight className="h-4 w-4" />
+              Lender / Seller Bano <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>

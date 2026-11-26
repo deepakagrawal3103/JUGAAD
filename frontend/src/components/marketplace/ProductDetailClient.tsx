@@ -263,7 +263,7 @@ export function ProductDetailClient({
               <span className="text-sm font-normal text-[#57534E]">/ day</span>
             </p>
             <p className="text-xs text-[#57534E] tabular-nums">
-              +{formatINR(product.security_deposit)} refundable security deposit
+              +{formatINR(product.security_deposit)} wapas milne waala security deposit
             </p>
           </div>
           <Badge variant="success">
@@ -275,10 +275,10 @@ export function ProductDetailClient({
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5 space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-[#161616] flex items-center gap-1.5">
-              <Calendar className="h-4 w-4 text-[#EB5E4C]" /> Select Event Duration
+              <Calendar className="h-4 w-4 text-[#EB5E4C]" /> Kitne Din ke Liye Chahiye?
             </span>
             <span className="text-[11px] font-medium text-[#EB5E4C]">
-              {product.min_rental_days}–{product.max_rental_days} days allowed
+              {product.min_rental_days}–{product.max_rental_days} din allowed
             </span>
           </div>
 
@@ -418,7 +418,7 @@ export function ProductDetailClient({
             disabled={!availability?.available || addingToCart || checking}
             className="w-full"
           >
-            {addingToCart ? "Adding to Bag..." : "Reserve Dates"}
+            {addingToCart ? "Bag Mein Daal Rahe Hain..." : "Dates Reserve Karo"}
           </Button>
         </div>
 

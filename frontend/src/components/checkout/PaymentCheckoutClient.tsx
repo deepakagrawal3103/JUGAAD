@@ -166,20 +166,20 @@ export function PaymentCheckoutClient({
 
         {isVerifying && (
           <div className="rounded-2xl border border-[#E8D5B5] bg-[#FCF7EC] p-5 space-y-1 text-sm text-[#9A6B1E]">
-            <p className="font-semibold">Payment Verification Pending</p>
-            <p className="text-xs">Our team is verifying your UPI transaction. Booking confirms upon verification.</p>
+            <p className="font-semibold">Payment Check Ho Raha Hai</p>
+            <p className="text-xs">Hamari team aapka UPI transaction check kar rahi hai. Verify hote hi booking confirm ho jayegi.</p>
           </div>
         )}
 
         {isConfirmed && (
           <div className="rounded-2xl border border-[#C4DACB] bg-[#EDF5F0] p-5 text-sm text-[#2F5D46] font-medium">
-            Payment Verified! Your rental booking is confirmed.
+            Payment Verify Ho Gaya! Aapki rental booking confirm ho gayi hai.
           </div>
         )}
 
         {isCancelled && (
           <div className="rounded-2xl border border-[#E6C5C5] bg-[#FDF1F1] p-5 text-sm text-[#9E2A2B]">
-            This reservation expired or was cancelled. Inventory dates have been released.
+            Yeh reservation expire ya cancel ho gaya hai. Dates ab waapas available hain.
           </div>
         )}
 
@@ -265,7 +265,7 @@ export function PaymentCheckoutClient({
 
             <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <Button type="submit" variant="accent" size="lg" disabled={submitting || countdown.expired} className="flex-1">
-                {submitting ? "Submitting..." : "I have completed payment"}
+                {submitting ? "Submit Ho Raha Hai..." : "Maine Payment Kar Diya Hai"}
               </Button>
               {whatsappUrl && (
                 <a
@@ -274,7 +274,7 @@ export function PaymentCheckoutClient({
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#2F5D46] bg-[#EDF5F0] text-[#2F5D46] px-5 py-3 text-xs font-semibold hover:bg-[#2F5D46] hover:text-white transition-colors"
                 >
-                  <MessageCircle className="h-4 w-4" /> Send Payment Confirmation on WhatsApp
+                  <MessageCircle className="h-4 w-4" /> WhatsApp par Payment Proof Bhejo
                 </a>
               )}
             </div>
