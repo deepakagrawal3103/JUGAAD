@@ -55,7 +55,7 @@ export function MobileBottomNav() {
           }`}
         >
           <Inbox className="h-5 w-5" />
-          <span>Meri Bookings</span>
+          <span>My Bookings</span>
         </Link>
       </div>
     </nav>

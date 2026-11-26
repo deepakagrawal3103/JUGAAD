@@ -109,29 +109,29 @@ export function BrowseFilters({ categories }: { categories: CategoryRecord[] }) 
   return (
     <form onSubmit={applyFilters} className="rounded-2xl border border-[#E4DFD7] bg-white p-5 space-y-4">
       <div className="flex items-center justify-between border-b border-[#E4DFD7] pb-3">
-        <h2 className="font-editorial text-xl font-semibold text-[#161616]">Search Filter Karo</h2>
+        <h2 className="font-editorial text-xl font-semibold text-[#161616]">Refine Search</h2>
         <button
           type="button"
           onClick={() => router.push("/browse")}
           className="text-xs text-[#EB5E4C] font-medium hover:underline"
         >
-          Reset Karo
+          Reset
         </button>
       </div>
 
       <div className="space-y-3">
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Naam ya brand search karo..." />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search title or brand..." />
 
         <Select value={sort} onChange={(e) => setSort(e.target.value)}>
           <option value="recommended">Recommended</option>
-          <option value="newly_added">Naya Aaya (Latest)</option>
-          <option value="price_asc">Price: Kam se Zyada</option>
-          <option value="price_desc">Price: Zyada se Kam</option>
-          <option value="most_popular">Sabse Popular</option>
+          <option value="newly_added">Newly Added</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="most_popular">Most Popular</option>
         </Select>
 
         <Select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">Sabhi Categories</option>
+          <option value="">All Categories</option>
           {categories.map((c) => (
             <option key={c.id} value={c.slug}>{c.name}</option>
           ))}

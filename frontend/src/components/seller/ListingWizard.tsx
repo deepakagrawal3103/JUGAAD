@@ -502,13 +502,13 @@ export function ListingWizard({
             <div className="rounded-xl border border-[#E4DFD7] bg-[#FAF8F5] p-4 space-y-3">
               <div>
                 <p className="text-xs font-semibold text-[#161616]">Available Delivery Locations (College / Area / City)</p>
-                <p className="text-[11px] text-[#57534E]">Jahan-jahan aap delivery ya handover kar sakte hain, woh college, area ya sheher add karo.</p>
+                <p className="text-[11px] text-[#57534E]">Add all colleges, areas, or cities where you can deliver or hand over this outfit.</p>
               </div>
               <div className="flex gap-2">
                 <Input
                   value={newLocationInput}
                   onChange={(e) => setNewLocationInput(e.target.value)}
-                  placeholder="Jaise: MIT-WPU Campus, Kothrud, Pune..."
+                  placeholder="e.g., MIT-WPU Campus, Kothrud, Pune..."
                 />
                 <Button
                   type="button"

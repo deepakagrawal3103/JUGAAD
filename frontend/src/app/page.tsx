@@ -19,7 +19,7 @@ function EmptyCollectionState({
     <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white px-6 py-12 text-center space-y-3">
       <p className="font-editorial text-2xl text-[#161616]">{title}</p>
       <p className="text-sm text-[#57534E] max-w-md mx-auto">
-        Abhi tak is collection me koi approved listing nahi hai. Sabse pehle apna outfit list karo aur earn karna start karo.
+        No approved listings in this collection yet. Be the first to list your outfit and start renting it out.
       </p>
       <div className="pt-2">
         <Link
@@ -53,10 +53,10 @@ export default async function HomePage() {
               Peer-to-Peer Luxury &amp; Occasion Rental
             </span>
             <h1 className="font-editorial text-4xl sm:text-6xl font-semibold tracking-tight text-[#161616] leading-[1.06]">
-              Aapka Agla Look, Kharidna Zaroori Nahi!
+              Your Next Look Doesn&apos;t Have To Be Bought!
             </h1>
             <p className="text-base sm:text-lg text-[#57534E] max-w-xl leading-relaxed">
-              Designer lehengas, banarasi sarees, stylish blazers aur occasionwear rent karo direct verified wardrobes se. Rent pe lo, pehno aur wapas return karo bina kisi jhanjhat ke.
+              Rent designer lehengas, Banarasi sarees, tailored blazers, and occasionwear directly from verified wardrobes across India. Rent, wear, and return hassle-free.
             </p>
             <div className="flex flex-wrap items-center gap-3.5 pt-2">
               <Link
@@ -69,7 +69,7 @@ export default async function HomePage() {
                 href="/seller/apply"
                 className="inline-flex items-center gap-2 rounded-xl border border-[#161616] bg-white text-[#161616] px-7 py-3.5 text-xs font-semibold uppercase tracking-[0.12em] hover:bg-[#161616] hover:text-white transition-colors"
               >
-                Apna Outfit List Karo
+                List Your Outfit
               </Link>
             </div>
           </div>
@@ -91,15 +91,15 @@ export default async function HomePage() {
                 </div>
                 <div className="flex justify-between items-baseline">
                   <span className="text-[#57534E]">Refundable Security Deposit</span>
-                  <span className="font-semibold tabular-nums">₹500 (100% Wapas)</span>
+                  <span className="font-semibold tabular-nums">₹500 (100% Refundable)</span>
                 </div>
                 <div className="flex justify-between items-baseline border-t border-[#E4DFD7] pt-3">
-                  <span className="text-[#57534E]">Lender / Seller Ki Kamai</span>
-                  <span className="font-semibold text-[#2F5D46] tabular-nums">{sellerShare}% Rent</span>
+                  <span className="text-[#57534E]">Seller Share</span>
+                  <span className="font-semibold text-[#2F5D46] tabular-nums">{sellerShare}% of Rent</span>
                 </div>
               </div>
               <p className="text-xs text-[#8C857B] leading-relaxed">
-                Har ek listing pehle admin review karti hai. Dates checkout par instant lock ho jaate hain taaki double-booking na ho sake.
+                Every listing is reviewed by our admin team before going live. Dates lock instantly at checkout to prevent double-booking.
               </p>
             </div>
           </div>
@@ -111,14 +111,14 @@ export default async function HomePage() {
         <div className="rounded-2xl border border-[#E8D5B5] bg-[#FCF7EC] px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div className="space-y-0.5">
             <p className="text-xs font-semibold uppercase tracking-wider text-[#9A6B1E]">
-              3-Day Rental Policy — Zaroori Jaankari
+              3-Day Rental Policy — Important Note
             </p>
             <p className="text-xs sm:text-sm text-[#161616]">
-              Outfit aap <strong>1 din pehle pehen sakte hain</strong> aur <strong>3rd day return</strong> karna hoga. Late hone par <strong>har extra day par rent amount ka 30%</strong> charge lagega.
+              You can collect and wear your outfit <strong>1 day before your event</strong> and must <strong>return it on the 3rd day</strong>. Late returns incur a <strong>30% charge of the rental amount per extra day</strong>.
             </p>
           </div>
           <Link href="/policies/rental-policy" className="text-xs font-semibold text-[#9A6B1E] underline shrink-0">
-            Poori Policy Padho →
+            Read Full Policy →
           </Link>
         </div>
       </section>
@@ -218,16 +218,16 @@ export default async function HomePage() {
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <p className="text-[11px] uppercase tracking-[0.18em] text-[#EB5E4C]">Easy &amp; Safe Process</p>
           <h2 className="font-editorial text-3xl sm:text-4xl font-semibold text-[#161616]">
-            ClosetLoop Kaise Kaam Karta Hai?
+            How ClosetLoop Works
           </h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
-            { step: "01", icon: CalendarCheck, title: "Dates Choose Karo", body: "Apne event ke hisaab se rental dates select karo aur available slot reserve karo." },
-            { step: "02", icon: ShieldCheck, title: "UPI Se Pay Karo", body: "Scan karke UPI payment karo aur UTR screenshot upload karke instant verify karwao." },
-            { step: "03", icon: Sparkles, title: "Pehno Aur Flaunt Karo", body: "Direct lender se pickup ya door delivery lo. Designer outfit pehno aur event enjoy karo!" },
-            { step: "04", icon: RefreshCw, title: "Wapas Karo, Deposit Pao", body: "Return deadline par garment wapas handover karo aur apna pura security deposit wapas pao." },
+            { step: "01", icon: CalendarCheck, title: "Choose Your Dates", body: "Select your event dates and reserve an available slot on the calendar." },
+            { step: "02", icon: ShieldCheck, title: "Pay via UPI", body: "Scan and pay via UPI, then upload your UTR screenshot for quick verification." },
+            { step: "03", icon: Sparkles, title: "Wear & Flaunt", body: "Opt for self-pickup or doorstep delivery. Look your best at the event!" },
+            { step: "04", icon: RefreshCw, title: "Return & Get Refund", body: "Return the garment by the deadline and receive your full security deposit back." },
           ].map((item) => (
             <div key={item.step} className="rounded-2xl border border-[#E4DFD7] bg-white p-6 space-y-3">
               <div className="flex items-center justify-between">
@@ -266,12 +266,12 @@ export default async function HomePage() {
       <section className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-[#161616] text-[#FAF8F5] p-8 sm:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-4">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#EB5E4C]">Apni Almirah Se Kamai Karo</p>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-[#EB5E4C]">Monetise Your Wardrobe</p>
             <h2 className="font-editorial text-3xl sm:text-5xl font-semibold leading-tight">
-              Wardrobe me rakhe party wear ko banao regular income.
+              Turn your occasionwear into regular income.
             </h2>
             <p className="text-sm sm:text-base text-[#D6CFC5] max-w-2xl leading-relaxed">
-              Har rental par pao {sellerShare}% direct kamai. Aur 100% security deposit protection aapke kapdon ko rakhega safe.
+              List your designer outfits after admin approval and protect your garments with 100% refundable security deposits.
             </p>
           </div>
           <div className="lg:col-span-4 flex lg:justify-end">
@@ -279,7 +279,7 @@ export default async function HomePage() {
               href="/seller/apply"
               className="inline-flex items-center gap-2 rounded-xl bg-[#EB5E4C] text-white px-7 py-4 text-xs font-semibold uppercase tracking-[0.12em] hover:bg-[#D94E3D] transition-colors"
             >
-              Lender / Seller Bano <ArrowRight className="h-4 w-4" />
+              Become a Seller <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>

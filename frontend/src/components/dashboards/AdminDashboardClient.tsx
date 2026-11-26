@@ -268,7 +268,7 @@ export function AdminDashboardClient({
             : item
         )
       );
-      setStatusMsg(`Listing update ho gayi (${nextStatus}).`);
+      setStatusMsg(`Listing updated (${nextStatus}).`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -315,7 +315,7 @@ export function AdminDashboardClient({
           )
         );
       }
-      setStatusMsg(`Payment ${decision} mark ho gaya.`);
+      setStatusMsg(`Payment marked ${decision}.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -338,7 +338,7 @@ export function AdminDashboardClient({
       setBookingsState((prev) =>
         prev.map((b) => (b.id === bookingId ? { ...b, status: nextStatus } : b))
       );
-      setStatusMsg(`Booking status "${nextStatus}" par set ho gaya.`);
+      setStatusMsg(`Booking status updated to "${nextStatus}".`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -379,7 +379,7 @@ export function AdminDashboardClient({
           };
         })
       );
-      setStatusMsg("Deposit refund record process ho gaya.");
+      setStatusMsg("Deposit refund processed.");
       setRefundBookingId(null);
       setRefundRef("");
       setDeductionAmt("0");
@@ -406,7 +406,7 @@ export function AdminDashboardClient({
       setPayoutsState((prev) =>
         prev.map((p) => (p.id === payoutId ? { ...p, status, payout_reference: ref ?? p.payout_reference } : p))
       );
-      setStatusMsg(`Payout ${status} mark ho gaya.`);
+      setStatusMsg(`Payout marked ${status}.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -431,7 +431,7 @@ export function AdminDashboardClient({
       if (selectedSeller?.id === sellerId) {
         setSelectedSeller((prev) => (prev ? { ...prev, verification_status: verificationStatus } : null));
       }
-      setStatusMsg(`Seller status ${verificationStatus} set ho gaya.`);
+      setStatusMsg(`Seller status updated to ${verificationStatus}.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -472,7 +472,7 @@ export function AdminDashboardClient({
         bio: "",
       });
       setShowAddSeller(false);
-      setStatusMsg(`Naya Seller "${created.display_name}" ban gaya aur Verify ho gaya.`);
+      setStatusMsg(`New Seller "${created.display_name}" created and verified.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -491,7 +491,7 @@ export function AdminDashboardClient({
       setUsersState((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, status: nextStatus } : u))
       );
-      setStatusMsg(`User status ${nextStatus} set ho gaya.`);
+      setStatusMsg(`User status updated to ${nextStatus}.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -510,7 +510,7 @@ export function AdminDashboardClient({
       setUsersState((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, role: nextRole } : u))
       );
-      setStatusMsg(`User role ${nextRole} set ho gaya.`);
+      setStatusMsg(`User role updated to ${nextRole}.`);
       router.refresh();
     } finally {
       setBusy(false);
@@ -532,8 +532,8 @@ export function AdminDashboardClient({
           late_fee_grace_hours: Number(settingsForm.late_fee_grace_hours),
         }),
       });
-      if (!ok) { setStatusMsg(`ERROR: ${data.error || "Settings save nahi hui."}`); return; }
-      setStatusMsg("Platform settings save ho gayi.");
+      if (!ok) { setStatusMsg(`ERROR: ${data.error || "Could not save settings."}`); return; }
+      setStatusMsg("Platform settings saved.");
       router.refresh();
     } finally {
       setBusy(false);
@@ -560,8 +560,8 @@ export function AdminDashboardClient({
 
   const TABS: { key: AdminTab; label: string }[] = [
     { key: "overview", label: "Overview" },
-    { key: "listings", label: `Listings (${pendingListingsCount} Baaki)` },
-    { key: "payments", label: `Payments (${pendingPaymentsCount} Baaki)` },
+    { key: "listings", label: `Listings (${pendingListingsCount} Pending)` },
+    { key: "payments", label: `Payments (${pendingPaymentsCount} Pending)` },
     { key: "bookings", label: `Bookings (${bookingsState.length})` },
     { key: "deposits", label: "Deposits & Refunds" },
     { key: "payouts", label: "Seller Payouts" },
@@ -594,7 +594,7 @@ export function AdminDashboardClient({
       {statusMsg && (
         <div className={`rounded-xl border px-4 py-3 text-xs font-medium flex items-center justify-between ${statusMsg.startsWith("ERROR:") ? "border-[#E6C5C5] bg-[#FDF1F1] text-[#9E2A2B]" : "border-[#C4DACB] bg-[#EDF5F0] text-[#2F5D46]"}`}>
           <span>{statusMsg}</span>
-          <button type="button" onClick={() => setStatusMsg(null)} className="underline text-[11px]">Band Karo</button>
+          <button type="button" onClick={() => setStatusMsg(null)} className="underline text-[11px]">Dismiss</button>
         </div>
       )}
 
@@ -606,17 +606,17 @@ export function AdminDashboardClient({
               { label: "Total Users", val: usersState.length || metrics.totalUsers, goto: "users" as AdminTab },
               { label: "Total Sellers", val: sellersState.length || metrics.totalSellers, goto: "sellers" as AdminTab },
               { label: "Live Listings", val: listingsState.filter((l) => l.status === "APPROVED").length || metrics.activeListings, goto: "listings" as AdminTab },
-              { label: "Approval Baaki", val: pendingListingsCount, goto: "listings" as AdminTab },
-              { label: "Kul Bookings", val: bookingsState.length || metrics.totalBookings, goto: "bookings" as AdminTab },
-              { label: "Confirm Bookings", val: metrics.confirmedBookings, goto: "bookings" as AdminTab },
-              { label: "Abhi Rent Par", val: bookingsState.filter((b) => b.status === "RENTAL_ACTIVE").length || metrics.activeRentals, goto: "bookings" as AdminTab },
+              { label: "Pending Approval", val: pendingListingsCount, goto: "listings" as AdminTab },
+              { label: "Total Bookings", val: bookingsState.length || metrics.totalBookings, goto: "bookings" as AdminTab },
+              { label: "Confirmed Bookings", val: metrics.confirmedBookings, goto: "bookings" as AdminTab },
+              { label: "Active Rentals", val: bookingsState.filter((b) => b.status === "RENTAL_ACTIVE").length || metrics.activeRentals, goto: "bookings" as AdminTab },
               { label: "Payment Queue", val: pendingPaymentsCount, goto: "payments" as AdminTab },
               { label: "Rental Volume", val: formatINR(metrics.rentalVolume), goto: "bookings" as AdminTab },
-              { label: "Platform Kamai", val: formatINR(metrics.platformCommission), goto: "payouts" as AdminTab },
-              { label: "Seller Kamai", val: formatINR(metrics.sellerEarnings), goto: "payouts" as AdminTab },
-              { label: "Deposit Jama", val: formatINR(metrics.depositsHeld), goto: "deposits" as AdminTab },
-              { label: "Refund Baaki", val: metrics.refundsPending, goto: "deposits" as AdminTab },
-              { label: "Return Baaki", val: metrics.returnsPending, goto: "bookings" as AdminTab },
+              { label: "Platform Commission", val: formatINR(metrics.platformCommission), goto: "payouts" as AdminTab },
+              { label: "Seller Earnings", val: formatINR(metrics.sellerEarnings), goto: "payouts" as AdminTab },
+              { label: "Deposits Held", val: formatINR(metrics.depositsHeld), goto: "deposits" as AdminTab },
+              { label: "Refunds Pending", val: metrics.refundsPending, goto: "deposits" as AdminTab },
+              { label: "Returns Pending", val: metrics.returnsPending, goto: "bookings" as AdminTab },
               { label: "Open Disputes", val: openDisputesCount, goto: "disputes" as AdminTab },
             ].map((m) => (
               <button
@@ -637,10 +637,10 @@ export function AdminDashboardClient({
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             {[
-              { key: "ALL", label: "Sabhi" },
-              { key: "PENDING_REVIEW", label: "Approval Baaki" },
+              { key: "ALL", label: "All" },
+              { key: "PENDING_REVIEW", label: "Pending Approval" },
               { key: "APPROVED", label: "Live / Approved" },
-              { key: "CHANGES_REQUESTED", label: "Changes Maanga" },
+              { key: "CHANGES_REQUESTED", label: "Changes Requested" },
               { key: "PAUSED", label: "Paused" },
               { key: "REJECTED", label: "Rejected" },
             ].map((f) => (
@@ -677,7 +677,7 @@ export function AdminDashboardClient({
                       </div>
                       <p className="text-sm font-semibold text-[#161616]">{item.title} ({item.brand})</p>
                       <p className="text-[#57534E]">Seller: {item.seller?.display_name} ({item.seller?.city})</p>
-                      <p className="tabular-nums">Rent: <strong>{formatINR(item.daily_price)}/din</strong> · Deposit: <strong>{formatINR(item.security_deposit)}</strong></p>
+                      <p className="tabular-nums">Rent: <strong>{formatINR(item.daily_price)}/day</strong> · Deposit: <strong>{formatINR(item.security_deposit)}</strong></p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -687,7 +687,7 @@ export function AdminDashboardClient({
                       disabled={busy}
                       onClick={() => handleToggleListingFlag(item, "is_featured")}
                     >
-                      <Star className="h-3.5 w-3.5" /> {item.is_featured ? "Featured ✓" : "Feature Karo"}
+                      <Star className="h-3.5 w-3.5" /> {item.is_featured ? "Featured ✓" : "Mark Featured"}
                     </Button>
                     <Button
                       size="sm"
@@ -695,7 +695,7 @@ export function AdminDashboardClient({
                       disabled={busy}
                       onClick={() => handleToggleListingFlag(item, "is_trending")}
                     >
-                      <Flame className="h-3.5 w-3.5" /> {item.is_trending ? "Trending ✓" : "Trending Karo"}
+                      <Flame className="h-3.5 w-3.5" /> {item.is_trending ? "Trending ✓" : "Mark Trending"}
                     </Button>
                   </div>
                 </div>
@@ -703,21 +703,21 @@ export function AdminDashboardClient({
                   <Input
                     value={reviewNotes[item.id] || ""}
                     onChange={(e) => setReviewNotes({ ...reviewNotes, [item.id]: e.target.value })}
-                    placeholder="Admin review note likho..."
+                    placeholder="Admin review note..."
                     className="flex-1"
                   />
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="accent" disabled={busy} onClick={() => handleListingAction(item.id, "APPROVED")}>
-                      <Check className="h-3.5 w-3.5" /> Approve Karo
+                      <Check className="h-3.5 w-3.5" /> Approve
                     </Button>
                     <Button size="sm" variant="subtle" disabled={busy} onClick={() => handleListingAction(item.id, "CHANGES_REQUESTED")}>
-                      <MessageSquare className="h-3.5 w-3.5" /> Changes Maango
+                      <MessageSquare className="h-3.5 w-3.5" /> Request Changes
                     </Button>
                     <Button size="sm" variant="destructive" disabled={busy} onClick={() => handleListingAction(item.id, "REJECTED")}>
-                      <X className="h-3.5 w-3.5" /> Reject Karo
+                      <X className="h-3.5 w-3.5" /> Reject
                     </Button>
                     <Button size="sm" variant="subtle" disabled={busy} onClick={() => handleListingAction(item.id, "UNPUBLISHED")}>
-                      Hatao (Unpublish)
+                      Unpublish
                     </Button>
                   </div>
                 </div>
@@ -731,7 +731,7 @@ export function AdminDashboardClient({
         <div className="space-y-4">
           {paymentQueueState.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white p-12 text-center text-sm text-[#8C857B]">
-              Abhi koi payment proof submit nahi hua hai.
+              No payment proofs submitted yet.
             </div>
           ) : (
             paymentQueueState.map((proof) => (
@@ -757,7 +757,7 @@ export function AdminDashboardClient({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 rounded-xl border border-[#E4DFD7] px-3 py-2 text-xs"
                     >
-                      Screenshot Dekho <ExternalLink className="h-3.5 w-3.5" />
+                      View Screenshot <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   )}
                 </div>
@@ -770,13 +770,13 @@ export function AdminDashboardClient({
                     />
                     <div className="flex gap-2">
                       <Button size="sm" variant="accent" disabled={busy} onClick={() => handlePaymentDecision(proof.booking_id, "VERIFIED")}>
-                        Payment Verify Karo
+                        Verify Payment
                       </Button>
                       <Button size="sm" variant="subtle" disabled={busy} onClick={() => handlePaymentDecision(proof.booking_id, "MORE_PROOF_REQUESTED")}>
-                        Aur Proof Maango
+                        Request Proof
                       </Button>
                       <Button size="sm" variant="destructive" disabled={busy} onClick={() => handlePaymentDecision(proof.booking_id, "REJECTED")}>
-                        Reject Karo
+                        Reject
                       </Button>
                     </div>
                   </div>
@@ -789,7 +789,7 @@ export function AdminDashboardClient({
 
       {tab === "bookings" && (
         <div className="space-y-4">
-          <Input value={bookingQuery} onChange={(e) => setBookingQuery(e.target.value)} placeholder="Booking Reference, email, ya status se search karo..." className="max-w-md" />
+          <Input value={bookingQuery} onChange={(e) => setBookingQuery(e.target.value)} placeholder="Search by Booking Reference, email, or status..." className="max-w-md" />
           <div className="rounded-2xl border border-[#E4DFD7] bg-white overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
@@ -857,7 +857,7 @@ export function AdminDashboardClient({
                     <td className="p-3"><Badge>{d.status}</Badge></td>
                     <td className="p-3">
                       {["HELD", "REFUND_PENDING"].includes(d.status) && (
-                        <Button size="sm" variant="subtle" onClick={() => setRefundBookingId(d.booking_id)}>Refund Karo</Button>
+                        <Button size="sm" variant="subtle" onClick={() => setRefundBookingId(d.booking_id)}>Process Refund</Button>
                       )}
                     </td>
                   </tr>
@@ -868,14 +868,14 @@ export function AdminDashboardClient({
 
           {refundBookingId && (
             <form onSubmit={handleProcessRefund} className="rounded-2xl border border-[#161616] bg-white p-6 space-y-4 max-w-xl">
-              <h3 className="font-editorial text-2xl font-semibold">Deposit Refund Record Karo</h3>
+              <h3 className="font-editorial text-2xl font-semibold">Record Deposit Refund</h3>
               <Input required value={refundRef} onChange={(e) => setRefundRef(e.target.value)} placeholder="UPI Refund Reference *" />
               <Input type="number" min={0} value={deductionAmt} onChange={(e) => setDeductionAmt(e.target.value)} placeholder="Deduction (₹)" />
               {Number(deductionAmt) > 0 && (
-                <Textarea required value={deductionReason} onChange={(e) => setDeductionReason(e.target.value)} placeholder="Deduction ka reason likho *" />
+                <Textarea required value={deductionReason} onChange={(e) => setDeductionReason(e.target.value)} placeholder="Documented deduction reason *" />
               )}
               <div className="flex gap-2">
-                <Button type="submit" variant="accent" disabled={busy}>Refund Confirm Karo</Button>
+                <Button type="submit" variant="accent" disabled={busy}>Confirm Refund</Button>
                 <Button type="button" variant="subtle" onClick={() => setRefundBookingId(null)}>Cancel</Button>
               </div>
             </form>
@@ -906,7 +906,7 @@ export function AdminDashboardClient({
                   <td className="p-3"><Badge variant={p.status === "PAID" ? "success" : "warning"}>{p.status}</Badge></td>
                   <td className="p-3 flex items-center gap-2">
                     <Input value={payoutRefs[p.id] ?? p.payout_reference ?? ""} onChange={(e) => setPayoutRefs({ ...payoutRefs, [p.id]: e.target.value })} placeholder="UTR / Ref" className="h-9 w-36" />
-                    <Button size="sm" variant="accent" disabled={busy} onClick={() => handlePayoutUpdate(p.id, "PAID")}>Paid Mark Karo</Button>
+                    <Button size="sm" variant="accent" disabled={busy} onClick={() => handlePayoutUpdate(p.id, "PAID")}>Mark Paid</Button>
                   </td>
                 </tr>
               ))}
@@ -920,31 +920,31 @@ export function AdminDashboardClient({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="font-editorial text-2xl font-semibold text-[#161616]">Sellers &amp; Boutiques Management</h2>
-              <p className="text-xs text-[#57534E]">Naya seller account banao, kisi ko bhi suspend/verify karo, aur seedha contact karo.</p>
+              <p className="text-xs text-[#57534E]">Create new seller accounts, verify or suspend sellers, and contact them directly.</p>
             </div>
             <Button variant="accent" size="sm" onClick={() => setShowAddSeller(!showAddSeller)}>
-              <Plus className="h-4 w-4" /> {showAddSeller ? "Form Band Karo" : "Naya Seller Account Banao"}
+              <Plus className="h-4 w-4" /> {showAddSeller ? "Close Form" : "Create Seller Account"}
             </Button>
           </div>
 
           {showAddSeller && (
             <form onSubmit={handleCreateSeller} className="rounded-2xl border border-[#161616] bg-white p-6 space-y-4">
-              <h3 className="font-editorial text-xl font-semibold">Naya Seller Account Banao</h3>
+              <h3 className="font-editorial text-xl font-semibold">Create New Seller Account</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <Input required value={newSellerForm.display_name} onChange={(e) => setNewSellerForm({ ...newSellerForm, display_name: e.target.value })} placeholder="Boutique / Closet Naam *" />
+                <Input required value={newSellerForm.display_name} onChange={(e) => setNewSellerForm({ ...newSellerForm, display_name: e.target.value })} placeholder="Boutique / Closet Name *" />
                 <Input type="email" required value={newSellerForm.email} onChange={(e) => setNewSellerForm({ ...newSellerForm, email: e.target.value })} placeholder="Seller Email *" />
                 <Input required value={newSellerForm.phone} onChange={(e) => setNewSellerForm({ ...newSellerForm, phone: e.target.value })} placeholder="Phone / WhatsApp (+91...) *" />
-                <Input required value={newSellerForm.city} onChange={(e) => setNewSellerForm({ ...newSellerForm, city: e.target.value })} placeholder="Sheher (City) *" />
+                <Input required value={newSellerForm.city} onChange={(e) => setNewSellerForm({ ...newSellerForm, city: e.target.value })} placeholder="City *" />
                 <Input value={newSellerForm.locality} onChange={(e) => setNewSellerForm({ ...newSellerForm, locality: e.target.value })} placeholder="Locality / Area" />
                 <Input required value={newSellerForm.payout_upi_id} onChange={(e) => setNewSellerForm({ ...newSellerForm, payout_upi_id: e.target.value })} placeholder="Payout UPI ID *" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Input required value={newSellerForm.payout_account_name} onChange={(e) => setNewSellerForm({ ...newSellerForm, payout_account_name: e.target.value })} placeholder="Bank / UPI Account Holder Naam *" />
+                <Input required value={newSellerForm.payout_account_name} onChange={(e) => setNewSellerForm({ ...newSellerForm, payout_account_name: e.target.value })} placeholder="Bank / UPI Account Holder Name *" />
                 <Input required value={newSellerForm.pickup_address} onChange={(e) => setNewSellerForm({ ...newSellerForm, pickup_address: e.target.value })} placeholder="Pickup Address *" />
               </div>
               <Textarea value={newSellerForm.bio} onChange={(e) => setNewSellerForm({ ...newSellerForm, bio: e.target.value })} placeholder="Boutique Bio (Optional)" />
               <div className="flex gap-2">
-                <Button type="submit" variant="accent" disabled={busy}>Seller Account Create Karo</Button>
+                <Button type="submit" variant="accent" disabled={busy}>Create Seller Account</Button>
                 <Button type="button" variant="subtle" onClick={() => setShowAddSeller(false)}>Cancel</Button>
               </div>
             </form>
@@ -955,7 +955,7 @@ export function AdminDashboardClient({
               <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
                 <tr>
                   <th className="p-3">Closet / Boutique</th>
-                  <th className="p-3">Sheher</th>
+                  <th className="p-3">City</th>
                   <th className="p-3">Contact &amp; UPI</th>
                   <th className="p-3">Rentals</th>
                   <th className="p-3">Status</th>
@@ -986,7 +986,7 @@ export function AdminDashboardClient({
                         </Button>
                         {s.verification_status !== "VERIFIED" && (
                           <Button size="sm" variant="accent" disabled={busy} onClick={() => handleSellerUpdate(s.id, "VERIFIED")}>
-                            <ShieldCheck className="h-3.5 w-3.5" /> Verify Karo
+                            <ShieldCheck className="h-3.5 w-3.5" /> Verify Seller
                           </Button>
                         )}
                         {s.verification_status !== "SUSPENDED" ? (
@@ -1056,7 +1056,7 @@ export function AdminDashboardClient({
                         href={`tel:${(selectedSeller.phone || selectedSeller.user?.phone || "").replace(/\s+/g, "")}`}
                         className="inline-flex items-center gap-1.5 rounded-xl bg-[#161616] text-white px-4 py-2 text-xs font-medium"
                       >
-                        <Phone className="h-3.5 w-3.5" /> Call Karo
+                        <Phone className="h-3.5 w-3.5" /> Call Seller
                       </a>
                       <a
                         href={`https://wa.me/${(selectedSeller.phone || selectedSeller.user?.phone || "").replace(/[^0-9]/g, "")}`}
@@ -1064,7 +1064,7 @@ export function AdminDashboardClient({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 rounded-xl bg-[#2F5D46] text-white px-4 py-2 text-xs font-medium"
                       >
-                        <MessageCircle className="h-3.5 w-3.5" /> WhatsApp Karo
+                        <MessageCircle className="h-3.5 w-3.5" /> WhatsApp Seller
                       </a>
                     </>
                   )}
@@ -1073,7 +1073,7 @@ export function AdminDashboardClient({
                       href={`mailto:${selectedSeller.email || selectedSeller.user?.email}`}
                       className="inline-flex items-center gap-1.5 rounded-xl border border-[#E4DFD7] px-4 py-2 text-xs font-medium hover:border-[#161616]"
                     >
-                      <Mail className="h-3.5 w-3.5" /> Email Bhejo
+                      <Mail className="h-3.5 w-3.5" /> Send Email
                     </a>
                   )}
                 </div>
@@ -1103,20 +1103,20 @@ export function AdminDashboardClient({
                       const { ok, data } = await tryApi("/api/admin/disputes", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ dispute_id: d.id, status: "RESOLVED", resolution_notes: "Admin ne resolve kiya." }),
+                        body: JSON.stringify({ dispute_id: d.id, status: "RESOLVED", resolution_notes: "Resolved by admin." }),
                       });
                       if (!ok) { setStatusMsg(`ERROR: ${data.error || "Dispute update save nahi hua."}`); return; }
                       setDisputesState((prev) =>
                         prev.map((row) => (row.id === d.id ? { ...row, status: "RESOLVED" } : row))
                       );
-                      setStatusMsg("Dispute resolve ho gaya.");
+                      setStatusMsg("Dispute resolved.");
                       router.refresh();
                     } finally {
                       setBusy(false);
                     }
                   }}
                 >
-                  Dispute Resolve Karo
+                  Resolve Dispute
                 </Button>
               )}
             </div>
@@ -1130,7 +1130,7 @@ export function AdminDashboardClient({
             <thead className="border-b border-[#E4DFD7] bg-[#F3EFEA] uppercase tracking-wider text-[#57534E]">
               <tr>
                 <th className="p-3">Email</th>
-                <th className="p-3">Role Badlo</th>
+                <th className="p-3">Role</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">Action</th>
               </tr>
@@ -1162,7 +1162,7 @@ export function AdminDashboardClient({
                         disabled={busy}
                         onClick={() => handleToggleUser(u.id, u.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE")}
                       >
-                        {u.status === "ACTIVE" ? "Suspend Karo" : "Activate Karo"}
+                        {u.status === "ACTIVE" ? "Suspend" : "Activate"}
                       </Button>
                     )}
                   </td>
@@ -1188,14 +1188,14 @@ export function AdminDashboardClient({
               <Input value={settingsForm.whatsapp_number} onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp_number: e.target.value })} placeholder="WhatsApp Number (91...)" />
             </div>
             <Textarea value={settingsForm.payment_instructions} onChange={(e) => setSettingsForm({ ...settingsForm, payment_instructions: e.target.value })} />
-            <Button type="submit" variant="accent" disabled={busy}>Settings Save Karo</Button>
+            <Button type="submit" variant="accent" disabled={busy}>Save Settings</Button>
           </form>
 
           <div className="lg:col-span-5 space-y-6">
             <div className="rounded-2xl border border-[#E4DFD7] bg-white p-6 space-y-4">
-              <h3 className="font-editorial text-xl font-semibold">Categories Manage Karo</h3>
+              <h3 className="font-editorial text-xl font-semibold">Manage Categories</h3>
               <div className="flex gap-2">
-                <Input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="Nayi Category ka Naam" />
+                <Input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="New Category Name" />
                 <Button
                   type="button"
                   variant="accent"
@@ -1218,11 +1218,11 @@ export function AdminDashboardClient({
                     };
                     setCategoriesState((prev) => [...prev, newCat]);
                     setNewCatName("");
-                    setStatusMsg(`Category "${name}" add ho gayi.`);
+                    setStatusMsg(`Category "${name}" added.`);
                     router.refresh();
                   }}
                 >
-                  Add Karo
+                  Add
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -1235,7 +1235,7 @@ export function AdminDashboardClient({
                         const { ok, data } = await tryApi(`/api/admin/categories/${c.id}`, { method: "DELETE" });
                         if (!ok) { setStatusMsg(`ERROR: ${data.error || "Category delete nahi hui."}`); return; }
                         setCategoriesState((prev) => prev.filter((row) => row.id !== c.id));
-                        setStatusMsg(`Category "${c.name}" hata di gayi.`);
+                        setStatusMsg(`Category "${c.name}" removed.`);
                         router.refresh();
                       }}
                       className="text-[#9E2A2B]"
@@ -1248,7 +1248,7 @@ export function AdminDashboardClient({
             </div>
 
             <div className="rounded-2xl border border-[#E4DFD7] bg-white p-6 space-y-3">
-              <h3 className="font-editorial text-xl font-semibold">Policies Edit Karo</h3>
+              <h3 className="font-editorial text-xl font-semibold">Edit Policies</h3>
               <Select
                 value={selectedPolicySlug}
                 onChange={(e) => {
@@ -1282,11 +1282,11 @@ export function AdminDashboardClient({
                   setPoliciesState((prev) =>
                     prev.map((p) => (p.slug === selectedPolicy.slug ? { ...p, content_markdown: policyContent } : p))
                   );
-                  setStatusMsg("Policy draft save ho gaya.");
+                  setStatusMsg("Policy draft saved.");
                   router.refresh();
                 }}
               >
-                Policy Save Karo
+                Save Policy
               </Button>
             </div>
           </div>

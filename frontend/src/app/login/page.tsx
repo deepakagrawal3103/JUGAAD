@@ -91,7 +91,7 @@ function LoginForm() {
     <div className="max-w-md mx-auto px-4 py-16">
       <div className="rounded-2xl border border-[#E4DFD7] bg-white p-8 space-y-6">
         <div className="space-y-2">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-[#8C857B]">Wapas Aaye? Swagat Hai!</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#8C857B]">Welcome Back</p>
           <h1 className="font-editorial text-3xl font-semibold text-[#161616]">Customer Sign In</h1>
         </div>
         {error && <div className="rounded-xl border border-[#E6C5C5] bg-[#FDF1F1] px-4 py-3 text-xs text-[#9E2A2B]">{error}</div>}
@@ -113,20 +113,20 @@ function LoginForm() {
 
         <div className="relative flex items-center justify-center">
           <div className="border-t border-[#E4DFD7] w-full" />
-          <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-[#8C857B]">ya Email se</span>
+          <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-[#8C857B]">or with Email</span>
           <div className="border-t border-[#E4DFD7] w-full" />
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Daalo" />
-          <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password Daalo" />
+          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Address" />
+          <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
           <Button type="submit" variant="accent" disabled={loading} className="w-full">
-            {loading ? "Sign In Ho Raha Hai..." : "Sign In Karo"}
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
         <div className="border-t border-[#E4DFD7] pt-5 text-sm text-[#57534E] text-center">
-          Naye ho yahan?{" "}
+          New here?{" "}
           <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="font-semibold text-[#161616] underline">
-            Naya Account Banao
+            Create an Account
           </Link>
         </div>
 

@@ -81,7 +81,7 @@ function SellerLoginForm() {
             <Store className="h-3.5 w-3.5" /> Seller Portal
           </div>
           <h1 className="font-editorial text-3xl font-semibold text-[#161616]">Seller Studio Sign In</h1>
-          <p className="text-xs text-[#57534E]">Apne closet listings, bookings aur payouts manage karne ke liye login karo.</p>
+          <p className="text-xs text-[#57534E]">Sign in to manage your closet listings, orders, and handovers.</p>
         </div>
 
         {error && <div className="rounded-xl border border-[#E6C5C5] bg-[#FDF1F1] px-4 py-3 text-xs text-[#9E2A2B]">{error}</div>}
@@ -92,17 +92,17 @@ function SellerLoginForm() {
         <p className="text-center text-[11px] uppercase tracking-wider text-[#8C857B]">ya email se</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Seller Email Daalo" />
-          <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password Daalo" />
+          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Seller Email" />
+          <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
           <Button type="submit" variant="accent" disabled={loading} className="w-full">
-            {loading ? "Login Ho Raha Hai..." : "Seller Studio Kholo"}
+            {loading ? "Signing In..." : "Open Seller Studio"}
           </Button>
         </form>
 
         <div className="border-t border-[#E4DFD7] pt-4 text-xs text-[#57534E] text-center">
-          Abhi Seller nahi bane?{" "}
-            <Link href={`/register?redirect=${encodeURIComponent("/seller/apply")}`} className="font-semibold text-[#2F5D46] underline">
-            Account banao / Seller onboarding
+          Not registered as a Seller yet?{" "}
+          <Link href={`/register?redirect=${encodeURIComponent("/seller/apply")}`} className="font-semibold text-[#2F5D46] underline">
+            Create Account / Seller Onboarding
           </Link>
         </div>
 

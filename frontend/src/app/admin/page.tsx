@@ -90,7 +90,7 @@ export default async function AdminDashboardPage() {
         </div>
         {isDemoMode && (
           <span className="rounded-full border border-[#E8D5B5] bg-[#FCF7EC] px-3.5 py-1.5 text-xs font-medium text-[#9A6B1E]">
-            Interactive Demo Mode — Sabhi Controls Active Hain
+            Interactive Demo Mode — All Controls Active
           </span>
         )}
       </div>

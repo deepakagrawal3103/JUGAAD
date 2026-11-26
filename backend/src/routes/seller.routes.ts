@@ -97,7 +97,7 @@ sellerRouter.post("/apply", requireAuth, async (req: AuthenticatedRequest, res) 
     user_id: req.auth!.userId,
     type: "SELLER_APPLICATION_PENDING",
     title: "Seller Request Submitted",
-    body: "Aapki seller application admin approval ke liye bhej di gayi hai. Approval ke baad hi account active hoga.",
+    body: "Your seller application has been submitted for Admin approval. Your account will become active once approved.",
     link: "/dashboard",
   });
 
@@ -242,7 +242,7 @@ sellerRouter.post(
       (!sellerProf || !["VERIFIED", "APPROVED"].includes(sellerProf.verification_status))
     ) {
       res.status(403).json({
-        error: "Aapka Seller account abhi Admin approval ke liye pending hai. Approval ke baad hi listing daal sakte hain.",
+        error: "Your Seller account is pending Admin approval. You can add listings once approved.",
       });
       return;
     }

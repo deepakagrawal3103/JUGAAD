@@ -166,20 +166,20 @@ export function PaymentCheckoutClient({
 
         {isVerifying && (
           <div className="rounded-2xl border border-[#E8D5B5] bg-[#FCF7EC] p-5 space-y-1 text-sm text-[#9A6B1E]">
-            <p className="font-semibold">Payment Check Ho Raha Hai</p>
-            <p className="text-xs">Hamari team aapka UPI transaction check kar rahi hai. Verify hote hi booking confirm ho jayegi.</p>
+            <p className="font-semibold">Payment Verification Pending</p>
+            <p className="text-xs">Our team is verifying your UPI transaction. Your booking will be confirmed once verified.</p>
           </div>
         )}
 
         {isConfirmed && (
           <div className="rounded-2xl border border-[#C4DACB] bg-[#EDF5F0] p-5 text-sm text-[#2F5D46] font-medium">
-            Payment Verify Ho Gaya! Aapki rental booking confirm ho gayi hai.
+            Payment Verified! Your rental booking is confirmed.
           </div>
         )}
 
         {isCancelled && (
           <div className="rounded-2xl border border-[#E6C5C5] bg-[#FDF1F1] p-5 text-sm text-[#9E2A2B]">
-            Yeh reservation expire ya cancel ho gaya hai. Dates ab waapas available hain.
+            This reservation has expired or been cancelled. The dates are now available again.
           </div>
         )}
 
@@ -265,7 +265,7 @@ export function PaymentCheckoutClient({
 
             <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <Button type="submit" variant="accent" size="lg" disabled={submitting || countdown.expired} className="flex-1">
-                {submitting ? "Submit Ho Raha Hai..." : "Maine Payment Kar Diya Hai"}
+                {submitting ? "Submitting..." : "I Have Completed Payment"}
               </Button>
               {whatsappUrl && (
                 <a
@@ -274,7 +274,7 @@ export function PaymentCheckoutClient({
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#2F5D46] bg-[#EDF5F0] text-[#2F5D46] px-5 py-3 text-xs font-semibold hover:bg-[#2F5D46] hover:text-white transition-colors"
                 >
-                  <MessageCircle className="h-4 w-4" /> WhatsApp par Payment Proof Bhejo
+                  <MessageCircle className="h-4 w-4" /> Send Payment Proof on WhatsApp
                 </a>
               )}
             </div>
@@ -327,24 +327,24 @@ export function PaymentCheckoutClient({
               <span>{formatINR(booking.total_security_deposit)}</span>
             </div>
             <div className="flex justify-between font-bold text-base border-t border-[#E4DFD7] pt-2.5">
-              <span>Abhi Total Pay Karna Hai</span>
+              <span>Total Payable Now</span>
               <span>{formatINR(booking.total_payable)}</span>
             </div>
             <div className="rounded-xl bg-[#EDF5F0] border border-[#C4DACB] p-2.5 flex justify-between items-center text-xs text-[#2F5D46]">
-              <span>Return Par Wapas Refund Hoga</span>
+              <span>Refundable Upon Return</span>
               <strong className="text-sm">{formatINR(booking.total_security_deposit)}</strong>
             </div>
           </div>
 
           <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] p-3 text-xs text-[#2F5D46] flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 shrink-0" />
-            <span>Commission sirf rent par lagta hai. Deposit 100% safe &amp; refundable hai.</span>
+            <span>Commission applies only to rental charges. Your security deposit is 100% safe &amp; refundable.</span>
           </div>
 
           <div className="rounded-xl border border-[#E8D5B5] bg-[#FCF7EC] p-3 text-xs text-[#9A6B1E] space-y-1">
             <p className="font-semibold text-[#161616]">3-Day Return Rule:</p>
             <p>
-              Outfit 1 din pehle pehen sakte hain aur 3rd day return karna zaroori hai. Har extra day par rent amount ka <strong>30% ({formatINR(Math.round(booking.total_rental_amount * 0.3))}/day)</strong> late fee lagega.
+              You can wear the outfit 1 day before your event and must return it on the 3rd day. Every extra day incurs a <strong>30% ({formatINR(Math.round(booking.total_rental_amount * 0.3))}/day)</strong> late fee.
             </p>
           </div>
         </div>

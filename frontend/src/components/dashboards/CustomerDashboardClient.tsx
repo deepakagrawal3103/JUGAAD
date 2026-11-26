@@ -50,14 +50,14 @@ interface UserProfileData {
 }
 
 const TABS = [
-  { key: "all", label: "Sabhi Bookings" },
-  { key: "payment_pending", label: "Payment Baaki" },
+  { key: "all", label: "All Bookings" },
+  { key: "payment_pending", label: "Payment Pending" },
   { key: "verification", label: "Verification" },
-  { key: "upcoming", label: "Upcoming / Confirm" },
-  { key: "active", label: "Abhi Rent Par" },
-  { key: "returns", label: "Return & Deposit" },
-  { key: "completed", label: "Complete" },
-  { key: "cancelled", label: "Cancel" },
+  { key: "upcoming", label: "Upcoming / Confirmed" },
+  { key: "active", label: "Currently Rented" },
+  { key: "returns", label: "Returns & Deposits" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
   { key: "profile", label: "Profile Settings" },
 ];
 
@@ -107,7 +107,7 @@ export function CustomerDashboardClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profileForm),
       });
-      setProfileMsg(res.ok ? "Profile update ho gaya." : "Profile update nahi ho paya.");
+      setProfileMsg(res.ok ? "Profile updated successfully." : "Could not update profile.");
     } finally {
       setSavingProfile(false);
     }
@@ -128,17 +128,17 @@ export function CustomerDashboardClient({
       <EventDashboardBanner role="participant" />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Kul Bookings</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Total Bookings</p>
           <p className="font-editorial text-3xl font-semibold mt-1">{bookings.length}</p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Active / Aane Waali</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Active / Upcoming</p>
           <p className="font-editorial text-3xl font-semibold mt-1">
             {bookings.filter((b) => ["CONFIRMED", "READY_FOR_PICKUP", "DISPATCHED", "RENTAL_ACTIVE"].includes(b.status)).length}
           </p>
         </div>
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5">
-          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Deposit Jama</p>
+          <p className="text-[11px] uppercase tracking-wider text-[#8C857B]">Deposits Held</p>
           <p className="font-editorial text-3xl font-semibold mt-1 tabular-nums">
             {formatINR(bookings.reduce((sum, b) => sum + Number(b.security_deposit?.amount_held || 0), 0))}
           </p>
@@ -171,14 +171,14 @@ export function CustomerDashboardClient({
           </button>
         ))}
         <Link href="/wishlist" className="rounded-full px-4 py-1.5 text-xs font-medium border border-[#E4DFD7] bg-[#F3EFEA] text-[#161616]">
-          Meri Wishlist →
+          My Wishlist →
         </Link>
       </div>
 
       {tab === "profile" ? (
         <form onSubmit={saveProfile} className="rounded-2xl border border-[#E4DFD7] bg-white p-6 max-w-2xl space-y-4">
           <h2 className="font-editorial text-2xl font-semibold">Profile Settings</h2>
-          <p className="text-xs text-[#8C857B]">{email} se login hai</p>
+          <p className="text-xs text-[#8C857B]">Signed in as {email}</p>
           {profileMsg && (
             <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] p-3 text-xs text-[#2F5D46]">
               {profileMsg}
@@ -192,7 +192,7 @@ export function CustomerDashboardClient({
           </div>
           <Input value={profileForm.address_line} onChange={(e) => setProfileForm({ ...profileForm, address_line: e.target.value })} placeholder="Delivery Address" />
           <Button type="submit" variant="accent" disabled={savingProfile}>
-            {savingProfile ? "Save ho raha hai..." : "Profile Save Karo"}
+            {savingProfile ? "Saving..." : "Save Profile"}
           </Button>
         </form>
       ) : filtered.length > 0 ? (
@@ -233,21 +233,21 @@ export function CustomerDashboardClient({
                     </div>
                     <p className="font-semibold text-sm text-[#161616]">
                       {firstItem?.product_title_snapshot}
-                      {booking.items.length > 1 ? ` + ${booking.items.length - 1} aur` : ""}
+                      {booking.items.length > 1 ? ` + ${booking.items.length - 1} more` : ""}
                     </p>
                     {firstItem && (
                       <p className="text-xs text-[#57534E]">
-                        {formatISTDate(firstItem.start_date)} – {formatISTDate(firstItem.end_date)} · Wapsi tak:{" "}
+                        {formatISTDate(firstItem.start_date)} – {formatISTDate(firstItem.end_date)} · Return by:{" "}
                         {formatISTDateTime(firstItem.return_deadline)}
                       </p>
                     )}
                     {countdown && (
                       <div className="space-y-0.5">
                         <p className="text-xs text-[#EB5E4C] font-medium flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" /> Wapsi ka Time: {countdown.label}
+                          <Clock className="h-3.5 w-3.5" /> Return Countdown: {countdown.label}
                         </p>
                         <p className="text-[11px] text-[#9A6B1E]">
-                          3rd day time par return karein, warna har extra day par rent ka 30% ({formatINR(Math.round(booking.total_rental_amount * 0.3))}/day) late fee lagega.
+                          Please return on time by the 3rd day; late returns incur a 30% ({formatINR(Math.round(booking.total_rental_amount * 0.3))}/day) fee per extra day.
                         </p>
                       </div>
                     )}
@@ -259,18 +259,18 @@ export function CustomerDashboardClient({
                     <span>Rent: <strong>{formatINR(booking.total_rental_amount)}</strong></span> ·{" "}
                     <span>Deposit: <strong>{formatINR(booking.total_security_deposit)}</strong></span>
                     <span className="block text-[11px] font-medium text-[#2F5D46]">
-                      Wapas Refund Hoga: <strong>{formatINR(booking.security_deposit?.refund_amount || booking.total_security_deposit)}</strong>
+                      Refundable on Return: <strong>{formatINR(booking.security_deposit?.refund_amount || booking.total_security_deposit)}</strong>
                       {booking.security_deposit ? ` (${booking.security_deposit.status.replace(/_/g, " ")})` : ""}
                     </span>
                   </div>
                   <div className="flex gap-2">
                     {booking.status === "AWAITING_PAYMENT" && (
                       <Link href={`/checkout/${booking.id}`} className="rounded-xl bg-[#EB5E4C] text-white px-4 py-2 text-xs font-medium">
-                        Abhi Pay Karo
+                        Pay Now
                       </Link>
                     )}
                     <Link href={`/dashboard/bookings/${booking.id}`} className="rounded-xl border border-[#161616] px-4 py-2 text-xs font-medium hover:bg-[#161616] hover:text-white transition-colors">
-                      Details Dekho
+                      View Details
                     </Link>
                   </div>
                 </div>
@@ -280,9 +280,9 @@ export function CustomerDashboardClient({
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-[#D6CFC5] bg-white p-12 text-center space-y-3">
-          <p className="font-editorial text-2xl text-[#161616]">Is view mein koi booking nahi hai</p>
+          <p className="font-editorial text-2xl text-[#161616]">No bookings in this view</p>
           <Link href="/browse" className="inline-block rounded-xl border border-[#161616] px-5 py-2 text-xs font-medium">
-            Rentals Explore Karo
+            Explore Rentals
           </Link>
         </div>
       )}

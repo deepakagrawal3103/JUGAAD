@@ -16,7 +16,7 @@ const FALLBACK_SETTINGS = {
   cleaning_buffer_days: ENV.defaultCleaningBufferDays,
   late_fee_grace_hours: 4,
   late_fee_policy_summary:
-    "3-Day Rental Policy: Aap event se 1 din pehle outfit pehen sakte hain aur 3rd day return karna zaroori hai. 3rd day ke baad har extra day par rent amount ka 30% late fee lagega.",
+    "3-Day Rental Policy: You may collect and wear your outfit 1 day before the event and must return it on the 3rd day. Late returns incur a 30% charge of the rental amount per extra day.",
   upi_id: "",
   upi_display_name: `${ENV.brandName} Rentals`,
   upi_qr_url: "",

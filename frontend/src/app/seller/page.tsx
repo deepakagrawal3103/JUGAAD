@@ -58,16 +58,16 @@ export default async function SellerDashboardPage() {
           </p>
           <h1 className="font-editorial text-3xl font-semibold text-[#161616]">
             {verificationStatus === "SUSPENDED"
-              ? "Aapka Seller Account Suspend Kar Diya Gaya Hai"
-              : "Seller Account Admin Approval Ke Liye Pending Hai"}
+              ? "Your Seller Account Has Been Suspended"
+              : "Your Seller Account Is Pending Admin Approval"}
           </h1>
           <p className="text-sm text-[#57534E]">
             {verificationStatus === "SUSPENDED"
-              ? "Kripya details ke liye support (/contact) se sampark karein."
-              : "Admin ke approve karne ke baad hi aapka Seller account active hoga aur aap listings daal sakenge."}
+              ? "Please contact support (/contact) for further details."
+              : "Your Seller account will become active only after Admin approval, after which you can list your outfits."}
           </p>
           <Link href="/dashboard" className="inline-block rounded-xl bg-[#161616] text-white px-5 py-2.5 text-xs font-semibold">
-            Customer Dashboard Par Jao
+            Go to Customer Dashboard
           </Link>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default async function SellerDashboardPage() {
       <div className="border-b border-[#E4DFD7] pb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[11px] uppercase tracking-[0.18em] text-[#8C857B]">Seller Studio</p>
-          <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Apna Closet &amp; Bookings</h1>
+          <h1 className="font-editorial text-4xl font-semibold text-[#161616]">Your Closet &amp; Bookings</h1>
         </div>
         <Link href="/dashboard" className="rounded-xl border border-[#E4DFD7] px-4 py-2 text-xs font-medium bg-white">
           Customer Dashboard

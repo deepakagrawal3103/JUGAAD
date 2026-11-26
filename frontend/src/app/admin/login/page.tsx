@@ -17,7 +17,7 @@ function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(
-    unauthorized ? "Sirf Admin account hi is portal mein login kar sakta hai." : null
+    unauthorized ? "Only Admin accounts can sign in to this portal." : null
   );
   const [loading, setLoading] = useState(false);
 
@@ -64,16 +64,16 @@ function AdminLoginForm() {
             <ShieldCheck className="h-3.5 w-3.5" /> Protected Operations
           </div>
           <h1 className="font-editorial text-3xl font-semibold text-[#161616]">Admin Console Login</h1>
-          <p className="text-xs text-[#57534E]">Yeh private portal sirf platform owners aur admins ke liye hai.</p>
+          <p className="text-xs text-[#57534E]">This private portal is strictly for platform owners and administrators.</p>
         </div>
 
         {error && <div className="rounded-xl border border-[#E6C5C5] bg-[#FDF1F1] px-4 py-3 text-xs text-[#9E2A2B]">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Admin Email Daalo" />
-          <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password Daalo" />
+          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Admin Email" />
+          <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
           <Button type="submit" variant="accent" disabled={loading} className="w-full">
-            {loading ? "Verify Ho Raha Hai..." : "Admin Panel Kholo"}
+            {loading ? "Verifying..." : "Open Admin Panel"}
           </Button>
         </form>
 

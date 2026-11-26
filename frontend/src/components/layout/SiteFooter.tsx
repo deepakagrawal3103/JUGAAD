@@ -18,7 +18,7 @@ export function SiteFooter({
             </Link>
             <p className="text-sm text-[#57534E] max-w-xs leading-relaxed">{brandTagline}</p>
             <p className="text-xs text-[#8C857B] pt-2">
-              Peer-owned fashion marketplace. Har listing curate aur verify hoke live hoti hai.
+              Peer-owned fashion rental marketplace. Every listing is curated and admin-verified before going live.
             </p>
           </div>
 
@@ -27,19 +27,19 @@ export function SiteFooter({
               Marketplace
             </h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/browse" className="hover:underline">Rentals Dekho</Link></li>
-              <li><Link href="/browse?sort=newly_added" className="hover:underline">Naya Aaya</Link></li>
-              <li><Link href="/browse?occasion=Weddings+%26+Sangeet" className="hover:underline">Shaadi Edit</Link></li>
-              <li><Link href="/seller/apply" className="hover:underline">Apna Outfit List Karo</Link></li>
+              <li><Link href="/browse" className="hover:underline">Explore Rentals</Link></li>
+              <li><Link href="/browse?sort=newly_added" className="hover:underline">New Arrivals</Link></li>
+              <li><Link href="/browse?occasion=Weddings+%26+Sangeet" className="hover:underline">Wedding Edit</Link></li>
+              <li><Link href="/seller/apply" className="hover:underline">List Your Outfit</Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-3 space-y-3">
             <h3 className="text-xs font-sans font-semibold uppercase tracking-[0.12em] text-[#57534E]">
-              Mera Account
+              My Account
             </h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/dashboard" className="hover:underline">Meri Bookings</Link></li>
+              <li><Link href="/dashboard" className="hover:underline">My Bookings</Link></li>
               <li><Link href="/wishlist" className="hover:underline">Saved Wishlist</Link></li>
               <li><Link href="/cart" className="hover:underline">Rental Bag</Link></li>
               <li><Link href="/contact" className="hover:underline font-medium text-[#EB5E4C]">Contact Us</Link></li>
@@ -60,7 +60,7 @@ export function SiteFooter({
 
           <div className="md:col-span-3 space-y-3">
             <h3 className="text-xs font-sans font-semibold uppercase tracking-[0.12em] text-[#57534E]">
-              Policies &amp; Bharosa
+              Policies &amp; Trust
             </h3>
             <ul className="grid grid-cols-1 gap-1.5 text-sm">
               {POLICY_LINKS.map((policy) => (
@@ -75,7 +75,7 @@ export function SiteFooter({
         </div>
 
         <div className="mt-12 pt-6 border-t border-[#E4DFD7] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8C857B]">
-          <p>© {new Date().getFullYear()} {brandName}. Draft policies legal review ke liye subject hain.</p>
+          <p>© {new Date().getFullYear()} {brandName}. Draft policies subject to legal review.</p>
           <p>IST (Asia/Kolkata) · Currency INR (₹)</p>
         </div>
       </div>

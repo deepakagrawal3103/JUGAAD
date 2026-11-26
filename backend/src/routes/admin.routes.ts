@@ -359,7 +359,7 @@ adminRouter.patch("/sellers", async (req, res) => {
         user_id: data.user_id,
         type: "SELLER_APPROVED",
         title: "Seller Account Approved!",
-        body: "Badhai ho! Admin ne aapka Seller account approve kar diya hai. Ab aap apni listings daal sakte hain.",
+        body: "Congratulations! Admin has approved your Seller account. You can now list your outfits on ClosetLoop.",
         link: "/seller",
       });
     } else if (parsed.data.verification_status === "SUSPENDED") {
@@ -367,7 +367,7 @@ adminRouter.patch("/sellers", async (req, res) => {
         user_id: data.user_id,
         type: "SELLER_SUSPENDED",
         title: "Seller Account Suspended",
-        body: "Aapka Seller account admin ne suspend kar diya hai. Details ke liye support se sampark karein.",
+        body: "Your Seller account has been suspended by Admin. Please contact support for details.",
         link: "/contact",
       });
     }

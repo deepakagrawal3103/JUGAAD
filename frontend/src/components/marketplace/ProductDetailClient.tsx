@@ -101,7 +101,7 @@ export function ProductDetailClient({
         (u) => !(u.end_date < startDate || u.start_date > iso)
       );
       if (hasBlockedBetween) {
-        setCalMsg("Is beech mein kuch dates already rented hain — koi aur available dates chuno.");
+        setCalMsg("Some dates in this range are already rented — please select other available dates.");
         return;
       }
       setEndDate(iso);
@@ -301,7 +301,7 @@ export function ProductDetailClient({
               <span className="text-sm font-normal text-[#57534E]">/ day</span>
             </p>
             <p className="text-xs text-[#57534E] tabular-nums">
-              +{formatINR(product.security_deposit)} wapas milne waala security deposit
+              +{formatINR(product.security_deposit)} refundable security deposit
             </p>
           </div>
           <Badge variant="success">
@@ -313,10 +313,10 @@ export function ProductDetailClient({
         <div className="rounded-2xl border border-[#E4DFD7] bg-white p-5 space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-[#161616] flex items-center gap-1.5">
-              <Calendar className="h-4 w-4 text-[#EB5E4C]" /> Kitne Din ke Liye Chahiye?
+              <Calendar className="h-4 w-4 text-[#EB5E4C]" /> Select Event Duration
             </span>
             <span className="text-[11px] font-medium text-[#EB5E4C]">
-              {product.min_rental_days}–{product.max_rental_days} din allowed
+              {product.min_rental_days}–{product.max_rental_days} days allowed
             </span>
           </div>
 
@@ -375,7 +375,7 @@ export function ProductDetailClient({
               <div className="rounded-xl border border-[#E4DFD7] bg-[#FAF8F5] p-3.5 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-[#161616]">
-                    Availability Calendar ({calPickMode === "start" ? "Start Date Chuno" : "Return Date Chuno"})
+                    Availability Calendar ({calPickMode === "start" ? "Select Start Date" : "Select Return Date"})
                   </span>
                   <div className="flex items-center gap-1">
                     <button
@@ -512,7 +512,7 @@ export function ProductDetailClient({
           ) : availability?.available && availability.pricing ? (
             <div className="rounded-xl border border-[#C4DACB] bg-[#EDF5F0] p-3.5 text-xs space-y-1.5 tabular-nums">
               <div className="flex justify-between font-semibold text-[#2F5D46]">
-                <span>Available ({availability.pricing.rentalDays} din)</span>
+                <span>Available ({availability.pricing.rentalDays} days)</span>
                 <span>Rent: {formatINR(availability.pricing.rentalAmount)}</span>
               </div>
               <div className="flex justify-between text-[#161616]">
@@ -526,11 +526,11 @@ export function ProductDetailClient({
                 </div>
               )}
               <div className="flex justify-between font-bold text-[#161616] border-t border-[#C4DACB] pt-1.5">
-                <span>Abhi Total Pay Karna Hai</span>
+                <span>Total Payable Now</span>
                 <span>{formatINR(availability.pricing.customerPayable)}</span>
               </div>
               <div className="flex justify-between font-semibold text-[#2F5D46]">
-                <span>Return Par Wapas Refund Hoga</span>
+                <span>Refundable Upon Return</span>
                 <span>{formatINR(availability.pricing.securityDeposit)}</span>
               </div>
             </div>
@@ -565,7 +565,7 @@ export function ProductDetailClient({
             disabled={!availability?.available || addingToCart || checking}
             className="w-full"
           >
-            {addingToCart ? "Bag Mein Daal Rahe Hain..." : "Dates Reserve Karo"}
+            {addingToCart ? "Adding to Bag..." : "Reserve Dates"}
           </Button>
         </div>
 
@@ -590,12 +590,12 @@ export function ProductDetailClient({
           <div className="rounded-xl border border-[#E8D5B5] bg-[#FCF7EC] p-3.5 text-xs text-[#9A6B1E] space-y-1">
             <p className="font-semibold text-[#161616]">3-Day Rental &amp; Late Return Policy</p>
             <p>
-              • Aap outfit <strong>1 din pehle pehen sakte hain</strong> aur <strong>3rd day 9:00 PM IST tak return</strong> karna zaroori hai.
+              • You can collect and wear the outfit <strong>1 day before your event</strong> and must return it by <strong>9:00 PM IST on the 3rd day</strong>.
             </p>
             <p>
-              • 3rd day ke baad return karne par <strong>har extra day par rent amount ka 30%</strong> (approx. {formatINR(Math.round((availability?.pricing?.rentalAmount ?? product.daily_price * 3) * 0.3))}/extra day) late fee lagega.{" "}
+              • Returns after the 3rd day incur a <strong>30% late fee of the rental amount per extra day</strong> (approx. {formatINR(Math.round((availability?.pricing?.rentalAmount ?? product.daily_price * 3) * 0.3))}/extra day).{" "}
               <a href="/policies/cancellation-policy" className="underline text-[#161616]">
-                Policies Dekho
+                View Policies
               </a>
             </p>
           </div>

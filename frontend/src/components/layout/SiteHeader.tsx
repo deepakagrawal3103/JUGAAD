@@ -47,7 +47,7 @@ export function SiteHeader({ brandName, categories, user, counts }: SiteHeaderPr
   return (
     <header className="sticky top-0 z-40 border-b border-[#E4DFD7] bg-[#FAF8F5]/95 backdrop-blur-sm">
       <div className="border-b border-[#E4DFD7] bg-[#161616] text-[#FAF8F5] text-[11px] tracking-[0.08em] uppercase py-1.5 px-4 text-center">
-        Dry-Cleaned &amp; Verified Kapde · 100% Refundable Security Deposit · Instant Booking
+        Dry-Cleaned &amp; Verified Outfits · 100% Refundable Security Deposit · Instant Booking
       </div>
 
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
