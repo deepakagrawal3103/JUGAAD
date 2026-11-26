@@ -218,7 +218,7 @@ export default async function HomePage() {
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <p className="text-[11px] uppercase tracking-[0.18em] text-[#EB5E4C]">Easy &amp; Safe Process</p>
           <h2 className="font-editorial text-3xl sm:text-4xl font-semibold text-[#161616]">
-            How ClosetLoop Works
+            How RentKro Works
           </h2>
         </div>
 

@@ -359,7 +359,7 @@ adminRouter.patch("/sellers", async (req, res) => {
         user_id: data.user_id,
         type: "SELLER_APPROVED",
         title: "Seller Account Approved!",
-        body: "Congratulations! Admin has approved your Seller account. You can now list your outfits on ClosetLoop.",
+        body: "Congratulations! Admin has approved your Seller account. You can now list your outfits on RentKro.",
         link: "/seller",
       });
     } else if (parsed.data.verification_status === "SUSPENDED") {

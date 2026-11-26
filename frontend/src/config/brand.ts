@@ -1,5 +1,5 @@
 export const BRAND_CONFIG = {
-  name: process.env.NEXT_PUBLIC_BRAND_NAME || "ClosetLoop",
+  name: process.env.NEXT_PUBLIC_BRAND_NAME || "RentKro",
   tagline:
     process.env.NEXT_PUBLIC_BRAND_TAGLINE ||
     "Your next look doesn't have to be yours.",

@@ -39,7 +39,7 @@ export default function ContactPage() {
         </a>
 
         <a
-          href={`https://wa.me/${BRAND_CONFIG.contactWhatsapp}?text=${encodeURIComponent("Hello! I need help with my ClosetLoop rental.")}`}
+          href={`https://wa.me/${BRAND_CONFIG.contactWhatsapp}?text=${encodeURIComponent("Hello! I need help with my RentKro rental.")}`}
           target="_blank"
           rel="noopener noreferrer"
           className="rounded-2xl border border-[#C4DACB] bg-[#EDF5F0] p-6 space-y-3 hover:border-[#2F5D46] transition-colors"

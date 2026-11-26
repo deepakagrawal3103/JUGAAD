@@ -214,7 +214,7 @@ export function ProductDetailClient({
 
           <div className="absolute top-3.5 left-3.5">
             <Badge variant="success">
-              <CheckCircle2 className="h-3 w-3" /> ClosetLoop Inspected
+              <CheckCircle2 className="h-3 w-3" /> RentKro Inspected
             </Badge>
           </div>
 

@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       ADMIN: {
         userId: "00000000-0000-0000-0000-000000000001",
         role: "ADMIN",
-        fullName: "ClosetLoop Admin",
+        fullName: "RentKro Admin",
         email: "admin@closetloop.in",
         sellerProfileId: null,
       },

@@ -7,7 +7,7 @@ export const ENV = {
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
-  brandName: process.env.BRAND_NAME || "ClosetLoop",
+  brandName: process.env.BRAND_NAME || "RentKro",
   brandTagline: process.env.BRAND_TAGLINE || "Your next look doesn't have to be yours.",
   timezone: "Asia/Kolkata",
   currencyCode: "INR",
